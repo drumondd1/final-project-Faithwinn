@@ -2,21 +2,21 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "My Final Project Template",
+    "title": "GEO511 Final Project",
     "section": "",
-    "text": "[~ 200 words]\nClearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way. Include figures if you like."
+    "text": "library(rmarkdown) library(knitr)"
   },
   {
     "objectID": "index.html#download-and-clean-all-required-data",
     "href": "index.html#download-and-clean-all-required-data",
-    "title": "My Final Project Template",
+    "title": "GEO511 Final Project",
     "section": "Download and clean all required data",
-    "text": "Download and clean all required data\n\nn=20\ndata=data.frame(x=runif(n,-180,180),\n                y=runif(n,-60,60),\n                size = runif(n, 5, 20),\n                category = factor(\n                  sample(letters[1:5], n, replace = TRUE)\n                  ),\n                value = rnorm(n))\n\ndata %&gt;% \n  slice(1:10) %&gt;% #show only 1:n rows\n  kable(digits=2,align=\"c\")%&gt;% #make table and round to two digits\n  kable_styling(bootstrap_options = \n                  c(\"striped\", \"hover\", \"condensed\", \"responsive\")) #apply other formatting\n\n\n\n\nx\ny\nsize\ncategory\nvalue\n\n\n\n\n76.86\n-36.01\n7.88\nb\n-0.09\n\n\n2.69\n-26.90\n8.76\na\n-0.60\n\n\n-168.26\n32.15\n14.43\na\n-0.94\n\n\n53.76\n-10.66\n5.81\nd\n-1.09\n\n\n-114.70\n-26.42\n13.04\nd\n-0.66\n\n\n-156.98\n38.25\n5.37\nd\n1.74\n\n\n-86.67\n7.78\n6.06\nc\n0.96\n\n\n89.84\n18.42\n12.47\ne\n0.44\n\n\n62.67\n-57.60\n15.30\nb\n1.01\n\n\n99.07\n-43.79\n16.39\ne\n0.70\n\n\n\n\n\n\nAdd any additional processing steps here."
+    "text": "Download and clean all required data\n\nn=20\ndata=data.frame(x=runif(n,-180,180),\n                y=runif(n,-60,60),\n                size = runif(n, 5, 20),\n                category = factor(\n                  sample(letters[1:5], n, replace = TRUE)\n                  ),\n                value = rnorm(n))\n\ndata %&gt;% \n  slice(1:10) %&gt;% #show only 1:n rows\n  kable(digits=2,align=\"c\")%&gt;% #make table and round to two digits\n  kable_styling(bootstrap_options = \n                  c(\"striped\", \"hover\", \"condensed\", \"responsive\")) #apply other formatting\n\n\n\n\nx\ny\nsize\ncategory\nvalue\n\n\n\n\n154.29\n21.16\n20.00\ne\n-0.48\n\n\n57.27\n30.79\n18.97\nc\n-1.30\n\n\n150.75\n52.11\n11.55\nc\n0.48\n\n\n108.75\n-42.15\n15.47\nb\n0.43\n\n\n102.05\n6.92\n6.64\nd\n0.45\n\n\n130.14\n-18.19\n10.84\nd\n-0.77\n\n\n159.90\n26.66\n5.72\ne\n1.24\n\n\n10.85\n-45.40\n12.19\na\n0.12\n\n\n-134.31\n50.51\n5.51\nd\n0.33\n\n\n85.39\n31.48\n5.66\nb\n1.00\n\n\n\n\n\n\nAdd any additional processing steps here."
   },
   {
     "objectID": "data/Readme.html",
     "href": "data/Readme.html",
-    "title": "GEO511_FinalProject",
+    "title": "Faithwin's GEO511 FinalProject",
     "section": "",
     "text": "Place any data needed by your analysis in this folder. Please do not store large files here. Then read in any data using the ‘data’ path. For example, read_csv(\"data/data.csv\")."
   },
