@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "GEO511_FinalProject"
+  title: "Faithwin's GEO511 FinalProject"
   navbar:
     left:
       - href: index.qmd
