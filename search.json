@@ -2,16 +2,16 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "GEO511 Final Project",
+    "title": "Predicting Diabetes Using Logistic Regression in R",
     "section": "",
     "text": "library(rmarkdown) library(knitr)"
   },
   {
     "objectID": "index.html#download-and-clean-all-required-data",
     "href": "index.html#download-and-clean-all-required-data",
-    "title": "GEO511 Final Project",
+    "title": "Predicting Diabetes Using Logistic Regression in R",
     "section": "Download and clean all required data",
-    "text": "Download and clean all required data\n\nn=20\ndata=data.frame(x=runif(n,-180,180),\n                y=runif(n,-60,60),\n                size = runif(n, 5, 20),\n                category = factor(\n                  sample(letters[1:5], n, replace = TRUE)\n                  ),\n                value = rnorm(n))\n\ndata %&gt;% \n  slice(1:10) %&gt;% #show only 1:n rows\n  kable(digits=2,align=\"c\")%&gt;% #make table and round to two digits\n  kable_styling(bootstrap_options = \n                  c(\"striped\", \"hover\", \"condensed\", \"responsive\")) #apply other formatting\n\n\n\n\nx\ny\nsize\ncategory\nvalue\n\n\n\n\n154.29\n21.16\n20.00\ne\n-0.48\n\n\n57.27\n30.79\n18.97\nc\n-1.30\n\n\n150.75\n52.11\n11.55\nc\n0.48\n\n\n108.75\n-42.15\n15.47\nb\n0.43\n\n\n102.05\n6.92\n6.64\nd\n0.45\n\n\n130.14\n-18.19\n10.84\nd\n-0.77\n\n\n159.90\n26.66\n5.72\ne\n1.24\n\n\n10.85\n-45.40\n12.19\na\n0.12\n\n\n-134.31\n50.51\n5.51\nd\n0.33\n\n\n85.39\n31.48\n5.66\nb\n1.00\n\n\n\n\n\n\nAdd any additional processing steps here."
+    "text": "Download and clean all required data\n\nn=20\ndata=data.frame(x=runif(n,-180,180),\n                y=runif(n,-60,60),\n                size = runif(n, 5, 20),\n                category = factor(\n                  sample(letters[1:5], n, replace = TRUE)\n                  ),\n                value = rnorm(n))\n\ndata %&gt;% \n  slice(1:10) %&gt;% #show only 1:n rows\n  kable(digits=2,align=\"c\")%&gt;% #make table and round to two digits\n  kable_styling(bootstrap_options = \n                  c(\"striped\", \"hover\", \"condensed\", \"responsive\")) #apply other formatting\n\n\n\n\nx\ny\nsize\ncategory\nvalue\n\n\n\n\n18.32\n42.06\n10.53\nb\n0.66\n\n\n-65.36\n39.65\n12.22\nb\n1.60\n\n\n80.98\n-11.72\n19.20\nc\n-0.89\n\n\n-12.05\n-9.38\n9.49\na\n-0.47\n\n\n-93.62\n-7.84\n18.02\nb\n-0.56\n\n\n-130.04\n-38.33\n7.20\nc\n-0.32\n\n\n105.94\n23.72\n16.48\nb\n0.02\n\n\n34.38\n-16.81\n8.15\na\n0.76\n\n\n75.37\n4.81\n8.39\nb\n1.51\n\n\n-42.46\n-38.92\n13.78\ne\n-0.09\n\n\n\n\n\n\nAdd any additional processing steps here."
   },
   {
     "objectID": "data/Readme.html",
