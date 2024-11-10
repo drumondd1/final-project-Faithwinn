@@ -69,8 +69,6 @@ Dataset can be found here: (<https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHA
 Loading necessary r packages to aid analysis.
 
 ```{r, message=F, warning=F}
-#install.packages("janitor")
-#install.packages("gmodels")
 #install.packages("corrplot")
 #install.packages("caret")
 #install.packages("kableExtra")
@@ -83,7 +81,6 @@ library(dplyr)
 library(tidyr)
 library(forcats)
 library(ggplot2)
-library(gmodels)
 library(class)
 library(corrplot)
 library(caret)
@@ -92,6 +89,17 @@ library(rmarkdown)
 library(knitr)
 knitr::opts_chunk$set(widgetframe_widgets_dir = 'widgets' ) 
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
+```
+
+```{r include=FALSE}
+# Load renv
+library(renv)
+
+# Check status
+renv::status()
+
+# Synchronize the project
+renv::snapshot()
 ```
 
 ### Load and Explore Data
