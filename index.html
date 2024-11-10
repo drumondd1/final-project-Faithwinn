@@ -7,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Faithwin Gbadamosi">
+<meta name="dcterms.date" content="2024-11-10">
 
 <title>Predicting Diabetes Using Logistic Regression in R – Faithwin’s GEO511 FinalProject</title>
 <style>
@@ -103,23 +104,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
-<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<link href="site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
-<script src="site_libs/leaflet-1.3.1/leaflet.js"></script>
-<link href="site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
-<script src="site_libs/proj4-2.6.2/proj4.min.js"></script>
-<script src="site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
-<link href="site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
-<script src="site_libs/leaflet-binding-2.2.2/leaflet.js"></script>
-<link href="site_libs/dygraphs-1.1.1/dygraph.css" rel="stylesheet">
-<script src="site_libs/dygraphs-1.1.1/dygraph-combined.js"></script>
-<script src="site_libs/dygraphs-1.1.1/shapes.js"></script>
-<script src="site_libs/moment-2.8.4/moment.js"></script>
-<script src="site_libs/moment-timezone-0.2.5/moment-timezone-with-data.js"></script>
-<script src="site_libs/moment-fquarter-1.0.0/moment-fquarter.min.js"></script>
-<script src="site_libs/dygraphs-binding-1.1.1.6/dygraphs.js"></script>
 
 
 </head>
@@ -184,7 +168,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">today</p>
+      <p class="date">November 10, 2024</p>
     </div>
   </div>
   
@@ -196,7 +180,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>library(rmarkdown) library(knitr)</p>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p>The disease “Diabetes Mellitus” is one of the most common critical diseases in the world. According to the World Health Organization (WHO), approximately 422 million people worldwide currently live with diabetes, with the majority residing in low- and middle-income countries (World Health Organization, 2023). The disease is characterized by elevated levels of blood glucose (or blood sugar), which leads over time to serious damage to the heart, blood vessels, eyes, kidneys and nerves.</p>
@@ -212,7 +195,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Materials and methods</h1>
 <section id="the-data" class="level3">
 <h3 class="anchored" data-anchor-id="the-data"><strong>The Data</strong></h3>
-<p>The dataset used in this project was found in a study by Chou et al., (2023),(<a href="https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHAY1tEr8VTeaxS6u/view?usp=sharing" class="uri">https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHAY1tEr8VTeaxS6u/view?usp=sharing</a>). The outpatient examination data of a Taipei Municipal medical center was taken as the patient population and 15,000 women aged between 20 and 80 were selected as the samples. The women were patients who had gone to the hospital between 2018 and 2020 and between 2021 and 2022 and may or may not have been diagnosed with diabetes. The dataset contains the following variables:</p>
+<p>The dataset used in this project was found in a study by Chou et al., (2023). The outpatient examination data of a Taipei Municipal medical center was taken as the patient population and 15,000 women aged between 20 and 80 were selected as the samples. The women were patients who had gone to the hospital between 2018 and 2020 and between 2021 and 2022 and may or may not have been diagnosed with diabetes.</p>
+<p>The dataset contains the following variables:</p>
 <p>1. Pregnancies: Number of times pregnant</p>
 <p>2. PlasmaGlucose: two hours following an oral glucose tolerance test, plasma glucose concentration</p>
 <p>3. DiastolicBloodPressure: Diastolic blood pressure (mm Hg)</p>
@@ -222,191 +206,873 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>7. DiabetesPedigree: a numerical estimate of an individual’s genetic risk for developing diabetes based on family history. A higher score indicates a greater likelihood of developing the condition.</p>
 <p>8. Age: Age (years)</p>
 <p>9. Diabetic Outcome: Class variable (0 or 1) with the class value 1 representing those who tested positive for diabetes.</p>
+<p>Dataset can be found here: (<a href="https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHAY1tEr8VTeaxS6u/view?usp=sharing" class="uri">https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHAY1tEr8VTeaxS6u/view?usp=sharing</a>).</p>
 </section>
-<section id="required-steps" class="level3">
-<h3 class="anchored" data-anchor-id="required-steps">Required Steps</h3>
+<section id="required-steps-to-build-model" class="level3">
+<h3 class="anchored" data-anchor-id="required-steps-to-build-model">Required Steps to Build Model</h3>
 <ol type="1">
 <li><p>Load necessary packages</p></li>
 <li><p>Load and explore the dataset</p></li>
 <li><p>Data visualization and exploratory analysis</p></li>
 <li><p>Preprocess data and Train model</p></li>
 <li><p>Evaluate model</p></li>
-<li><p>Make prediction</p></li>
+<li><p>Make prediction with case study</p></li>
+<li><p>ROC Curve</p></li>
 </ol>
-<p>See <a href="http://rmarkdown.rstudio.com/" class="uri">http://rmarkdown.rstudio.com/</a> for all the amazing things you can do.</p>
-<p>Here’s my first code chunk.</p>
+</section>
+<section id="load-required-packages" class="level3">
+<h3 class="anchored" data-anchor-id="load-required-packages">Load Required Packages</h3>
+<p>Loading necessary r packages to aid analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>x<span class="ot">=</span><span class="dv">3</span><span class="sc">+</span><span class="dv">4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"corrplot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The following package(s) will be installed:
+- corrplot [0.95]
+These packages will be installed into "~/work/Faithwinn_Final_Project/Faithwinn_Final_Project/renv/library/linux-ubuntu-jammy/R-4.4/x86_64-pc-linux-gnu".
+
+# Installing packages --------------------------------------------------------
+- Installing corrplot ...                       OK [linked from cache]
+Successfully installed 1 package in 8 milliseconds.</code></pre>
 </div>
-<p>Refer to output in your narrative like this: x=7 .</p>
-<p>Load any required packages in a code chunk (you may need to install some packages):</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(htmlwidgets)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(widgetframe)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">widgetframe_widgets_dir =</span> <span class="st">'widgets'</span> ) </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">TRUE</span>)  <span class="co"># cache the results for quick compiling</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"caret"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The following package(s) will be installed:
+- caret [6.0-94]
+These packages will be installed into "~/work/Faithwinn_Final_Project/Faithwinn_Final_Project/renv/library/linux-ubuntu-jammy/R-4.4/x86_64-pc-linux-gnu".
+
+# Installing packages --------------------------------------------------------
+- Installing caret ...                          OK [linked from cache]
+Successfully installed 1 package in 7 milliseconds.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"kableExtra"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The following package(s) will be installed:
+- kableExtra [1.4.0]
+These packages will be installed into "~/work/Faithwinn_Final_Project/Faithwinn_Final_Project/renv/library/linux-ubuntu-jammy/R-4.4/x86_64-pc-linux-gnu".
+
+# Installing packages --------------------------------------------------------
+- Installing kableExtra ...                     OK [linked from cache]
+Successfully installed 1 package in 7 milliseconds.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(htmlwidgets)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(widgetframe)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forcats)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(class)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reshape2) <span class="co">#for melt function</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rmarkdown) </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">widgetframe_widgets_dir =</span> <span class="st">'widgets'</span> ) </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">TRUE</span>)  <span class="co"># cache the results for quick compiling</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="download-and-clean-all-required-data" class="level2">
-<h2 class="anchored" data-anchor-id="download-and-clean-all-required-data">Download and clean all required data</h2>
+<section id="load-and-explore-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-and-explore-data">Load and Explore Data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n<span class="ot">=</span><span class="dv">20</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data<span class="ot">=</span><span class="fu">data.frame</span>(<span class="at">x=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="dv">180</span>,<span class="dv">180</span>),</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">y=</span><span class="fu">runif</span>(n,<span class="sc">-</span><span class="dv">60</span>,<span class="dv">60</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">size =</span> <span class="fu">runif</span>(n, <span class="dv">5</span>, <span class="dv">20</span>),</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">category =</span> <span class="fu">factor</span>(</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">sample</span>(letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                  ),</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">value =</span> <span class="fu">rnorm</span>(n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>diabetes_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://drive.google.com/uc?export=download&amp;id=1eAplOYO-k7ZYHj4uHAY1tEr8VTeaxS6u"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) <span class="sc">%&gt;%</span> <span class="co">#show only 1:n rows</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">digits=</span><span class="dv">2</span>,<span class="at">align=</span><span class="st">"c"</span>)<span class="sc">%&gt;%</span> <span class="co">#make table and round to two digits</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>, <span class="st">"responsive"</span>)) <span class="co">#apply other formatting</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Exploring the dataset</p>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>diabetes_data<span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) <span class="sc">%&gt;%</span> <span class="co">#show only 1:n rows</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">digits=</span><span class="dv">2</span>,<span class="at">align=</span><span class="st">"c"</span>)<span class="sc">%&gt;%</span> <span class="co">#make table and round to two digits</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>, <span class="st">"responsive"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="table-responsive">
 <table class="table table-striped table-hover table-condensed caption-top" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">x</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">y</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">size</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">category</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">value</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">PatientID</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Pregnancies</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">PlasmaGlucose</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">DiastolicBloodPressure</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">TricepsThickness</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">SerumInsulin</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">BMI</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">DiabetesPedigree</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Age</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Diabetic</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: center;">18.32</td>
-<td style="text-align: center;">42.06</td>
-<td style="text-align: center;">10.53</td>
-<td style="text-align: center;">b</td>
-<td style="text-align: center;">0.66</td>
+<td style="text-align: center;">1354778</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">171</td>
+<td style="text-align: center;">80</td>
+<td style="text-align: center;">34</td>
+<td style="text-align: center;">23</td>
+<td style="text-align: center;">43.51</td>
+<td style="text-align: center;">1.21</td>
+<td style="text-align: center;">21</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">-65.36</td>
-<td style="text-align: center;">39.65</td>
-<td style="text-align: center;">12.22</td>
-<td style="text-align: center;">b</td>
-<td style="text-align: center;">1.60</td>
+<td style="text-align: center;">1147438</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">92</td>
+<td style="text-align: center;">93</td>
+<td style="text-align: center;">47</td>
+<td style="text-align: center;">36</td>
+<td style="text-align: center;">21.24</td>
+<td style="text-align: center;">0.16</td>
+<td style="text-align: center;">23</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">80.98</td>
-<td style="text-align: center;">-11.72</td>
-<td style="text-align: center;">19.20</td>
-<td style="text-align: center;">c</td>
-<td style="text-align: center;">-0.89</td>
+<td style="text-align: center;">1640031</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">115</td>
+<td style="text-align: center;">47</td>
+<td style="text-align: center;">52</td>
+<td style="text-align: center;">35</td>
+<td style="text-align: center;">41.51</td>
+<td style="text-align: center;">0.08</td>
+<td style="text-align: center;">23</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">-12.05</td>
-<td style="text-align: center;">-9.38</td>
-<td style="text-align: center;">9.49</td>
-<td style="text-align: center;">a</td>
-<td style="text-align: center;">-0.47</td>
+<td style="text-align: center;">1883350</td>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">103</td>
+<td style="text-align: center;">78</td>
+<td style="text-align: center;">25</td>
+<td style="text-align: center;">304</td>
+<td style="text-align: center;">29.58</td>
+<td style="text-align: center;">1.28</td>
+<td style="text-align: center;">43</td>
+<td style="text-align: center;">1</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">-93.62</td>
-<td style="text-align: center;">-7.84</td>
-<td style="text-align: center;">18.02</td>
-<td style="text-align: center;">b</td>
-<td style="text-align: center;">-0.56</td>
+<td style="text-align: center;">1424119</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">85</td>
+<td style="text-align: center;">59</td>
+<td style="text-align: center;">27</td>
+<td style="text-align: center;">35</td>
+<td style="text-align: center;">42.60</td>
+<td style="text-align: center;">0.55</td>
+<td style="text-align: center;">22</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">-130.04</td>
-<td style="text-align: center;">-38.33</td>
-<td style="text-align: center;">7.20</td>
-<td style="text-align: center;">c</td>
-<td style="text-align: center;">-0.32</td>
+<td style="text-align: center;">1619297</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">82</td>
+<td style="text-align: center;">92</td>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">253</td>
+<td style="text-align: center;">19.72</td>
+<td style="text-align: center;">0.10</td>
+<td style="text-align: center;">26</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">105.94</td>
-<td style="text-align: center;">23.72</td>
-<td style="text-align: center;">16.48</td>
-<td style="text-align: center;">b</td>
-<td style="text-align: center;">0.02</td>
+<td style="text-align: center;">1660149</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">133</td>
+<td style="text-align: center;">47</td>
+<td style="text-align: center;">19</td>
+<td style="text-align: center;">227</td>
+<td style="text-align: center;">21.94</td>
+<td style="text-align: center;">0.17</td>
+<td style="text-align: center;">21</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">34.38</td>
-<td style="text-align: center;">-16.81</td>
-<td style="text-align: center;">8.15</td>
-<td style="text-align: center;">a</td>
-<td style="text-align: center;">0.76</td>
+<td style="text-align: center;">1458769</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">67</td>
+<td style="text-align: center;">87</td>
+<td style="text-align: center;">43</td>
+<td style="text-align: center;">36</td>
+<td style="text-align: center;">18.28</td>
+<td style="text-align: center;">0.24</td>
+<td style="text-align: center;">26</td>
+<td style="text-align: center;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">75.37</td>
-<td style="text-align: center;">4.81</td>
-<td style="text-align: center;">8.39</td>
-<td style="text-align: center;">b</td>
-<td style="text-align: center;">1.51</td>
+<td style="text-align: center;">1201647</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">80</td>
+<td style="text-align: center;">95</td>
+<td style="text-align: center;">33</td>
+<td style="text-align: center;">24</td>
+<td style="text-align: center;">26.62</td>
+<td style="text-align: center;">0.44</td>
+<td style="text-align: center;">53</td>
+<td style="text-align: center;">1</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">-42.46</td>
-<td style="text-align: center;">-38.92</td>
-<td style="text-align: center;">13.78</td>
-<td style="text-align: center;">e</td>
-<td style="text-align: center;">-0.09</td>
+<td style="text-align: center;">1403912</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">72</td>
+<td style="text-align: center;">31</td>
+<td style="text-align: center;">40</td>
+<td style="text-align: center;">42</td>
+<td style="text-align: center;">36.89</td>
+<td style="text-align: center;">0.10</td>
+<td style="text-align: center;">26</td>
+<td style="text-align: center;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 
 
-<p>Add any additional processing steps here.</p>
-</section>
-</section>
-<section id="results" class="level1">
-<h1>Results</h1>
-<p>[~200 words]</p>
-<p>Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.</p>
-<p>Show tables, plots, etc. and describe them.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">leaflet</span>(data) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addCircleMarkers</span>(<span class="sc">~</span>x, <span class="sc">~</span>y, <span class="at">radius =</span> <span class="sc">~</span>size,<span class="at">color =</span> <span class="sc">~</span><span class="fu">as.factor</span>(category)) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addPopups</span>(<span class="sc">~</span>x[<span class="dv">2</span>], <span class="sc">~</span>y[<span class="dv">2</span>], <span class="st">"Random popup"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>m  <span class="co"># a map with the default OSM tile layer</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="leaflet html-widget html-fill-item" id="htmlwidget-07a5d0238dc9e7c731ad" style="width:100%;height:325px;"></div>
-<script type="application/json" data-for="htmlwidget-07a5d0238dc9e7c731ad">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[42.06113769672811,39.65342874638736,-11.7170097772032,-9.379623821005225,-7.837276356294751,-38.33410243503749,23.72051577083766,-16.80818536318839,4.80848235078156,-38.91721464693546,-10.42537509463727,18.81674199365079,44.6620836853981,-8.247005715966225,-29.00005951523781,-57.97400197014213,36.24030324630439,55.54387478157878,-22.47452611103654,4.545208141207695],[18.32467010244727,-65.36076656542718,80.97830289043486,-12.0466644410044,-93.62079248763621,-130.0355719216168,105.9414726588875,34.37675873748958,75.37242460995913,-42.46303503401577,-19.07436713576317,147.4221511557698,6.188024841248989,-161.8181653227657,172.473535342142,18.73955125920475,145.8012485783547,129.6852237079293,-167.0500284153968,8.9119912404567],[10.53358360775746,12.21737957908772,19.20371055835858,9.485705730039626,18.02172810421325,7.199272371362895,16.47713892394677,8.154311437392607,8.386759724235162,13.77586995367892,6.774559266632423,8.572800423717126,9.937198921106756,11.7849155922886,17.4241083371453,17.71805831813253,12.37822387949564,18.15641129738651,15.56496794568375,19.81246187351644],null,null,{"interactive":true,"className":"","stroke":true,"color":["b","b","c","a","b","c","b","a","b","e","c","c","b","e","a","b","a","b","d","b"],"weight":5,"opacity":0.5,"fill":true,"fillColor":["b","b","c","a","b","c","b","a","b","e","c","c","b","e","a","b","a","b","d","b"],"fillOpacity":0.2},null,null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addPopups","args":[39.65342874638736,-65.36076656542718,"Random popup",null,null,{"maxWidth":300,"minWidth":50,"autoPan":true,"keepInView":false,"closeButton":true,"className":""}]}],"limits":{"lat":[-57.97400197014213,55.54387478157878],"lng":[-167.0500284153968,172.473535342142]}},"evals":[],"jsHooks":[]}</script>
-<p>Map of completely random data</p>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Exploring the structure of the data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(diabetes_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   15000 obs. of  10 variables:
+ $ PatientID             : int  1354778 1147438 1640031 1883350 1424119 1619297 1660149 1458769 1201647 1403912 ...
+ $ Pregnancies           : int  0 8 7 9 1 0 0 0 8 1 ...
+ $ PlasmaGlucose         : int  171 92 115 103 85 82 133 67 80 72 ...
+ $ DiastolicBloodPressure: int  80 93 47 78 59 92 47 87 95 31 ...
+ $ TricepsThickness      : int  34 47 52 25 27 9 19 43 33 40 ...
+ $ SerumInsulin          : int  23 36 35 304 35 253 227 36 24 42 ...
+ $ BMI                   : num  43.5 21.2 41.5 29.6 42.6 ...
+ $ DiabetesPedigree      : num  1.213 0.158 0.079 1.283 0.55 ...
+ $ Age                   : int  21 23 23 43 22 26 21 26 53 26 ...
+ $ Diabetic              : int  0 0 0 1 0 0 0 0 1 0 ...</code></pre>
 </div>
 </div>
+<p>The dataset contains 15000 patient entries, with all features being numeric values.</p>
+<section id="clean-dataset" class="level5">
+<h5 class="anchored" data-anchor-id="clean-dataset">Clean Dataset</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>x,<span class="at">y=</span>y,<span class="at">col=</span>category))<span class="sc">+</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">duplicated</span>(diabetes_data) <span class="co">#check for duplicates</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(diabetes_data)) <span class="co">#to check missing values </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The dataset contains no duplicates or missing values. The next step is visual summary.</p>
+</section>
+</section>
+<section id="data-visualization-and-exploratory-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="data-visualization-and-exploratory-analysis">Data Visualization and Exploratory Analysis</h3>
+<p>Correlation and visual summary</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove patientid and outcome for better analysis </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>filtered_diabetes <span class="ot">&lt;-</span> <span class="fu">subset</span>(diabetes_data, <span class="at">select =</span> <span class="sc">-</span><span class="fu">c</span>(PatientID,Diabetic))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>correlation_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(filtered_diabetes)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert correlation matrix from wide to long format for easier analysis</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>correlation_melted <span class="ot">&lt;-</span> <span class="fu">melt</span>(correlation_matrix)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#see the outcome</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>correlation_melted<span class="sc">%&gt;%</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">digits=</span><span class="dv">8</span>,<span class="at">align=</span><span class="st">"c"</span>)<span class="sc">%&gt;%</span> <span class="co">#make table and round to two digits</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>, <span class="st">"responsive"</span>,  <span class="at">fixed_thead =</span> <span class="cn">TRUE</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scroll_box</span>(<span class="at">width =</span> <span class="st">"100%"</span>, <span class="at">height =</span> <span class="st">"400px"</span>) <span class="co">#scroll option long table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="text-align: center; position: sticky; top: 0; background-color: #FFFFFF;">Var1</th>
+<th data-quarto-table-cell-role="th" style="text-align: center; position: sticky; top: 0; background-color: #FFFFFF;">Var2</th>
+<th data-quarto-table-cell-role="th" style="text-align: center; position: sticky; top: 0; background-color: #FFFFFF;">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.05450238</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.04352845</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.06360454</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.10448699</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.08638610</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.05424006</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">0.13697248</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.05450238</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.00721196</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.02709960</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.03354493</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.02065333</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.00905733</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">0.03886361</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.04352845</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.00721196</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.01110606</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.02264855</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.01587319</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.01409873</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">0.04133254</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">0.06360454</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">0.02709960</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">0.01110606</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">0.02968762</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">0.02474548</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">-0.00095109</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">0.06138287</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.10448699</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.03354493</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.02264855</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.02968762</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.05122315</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.04632376</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">0.08800683</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.08638610</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.02065333</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.01587319</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.02474548</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.05122315</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.02886835</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">0.06290975</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">0.05424006</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">0.00905733</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">0.01409873</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">-0.00095109</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">0.04632376</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">0.02886835</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">0.05563319</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Pregnancies</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.13697248</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">PlasmaGlucose</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.03886361</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiastolicBloodPressure</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.04133254</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TricepsThickness</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.06138287</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SerumInsulin</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.08800683</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">BMI</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.06290975</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">DiabetesPedigree</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">0.05563319</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">Age</td>
+<td style="text-align: center;">1.00000000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+<p>Plot correlation heatmap</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot heatmap</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(correlation_melted, <span class="fu">aes</span>(Var1, Var2, <span class="at">fill=</span>value)) <span class="sc">+</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low=</span> <span class="st">"blue"</span>, <span class="at">high=</span><span class="st">"red"</span>, <span class="at">mid=</span><span class="st">"white"</span>, <span class="at">midpoint=</span><span class="dv">0</span>, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">limit=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>), <span class="at">space =</span> <span class="st">"Lab"</span>, <span class="at">name=</span><span class="st">"Correlation"</span>) <span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span> <span class="co">#so the xlabs are not scrunched together</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">"Correlation Heatmap"</span>, <span class="at">x=</span><span class="st">"Features"</span>, <span class="at">y=</span><span class="st">"Features"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption>Correlation HeatMap</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<section id="dygraphs-example" class="level3">
-<h3 class="anchored" data-anchor-id="dygraphs-example">Dygraphs Example</h3>
+<p>The correlation shows moderately positive correlations between the Age and Pregnancy, and the Insulin and Pregnancy. This indicates that as the age of the patients increased so did the number of pregnancies, also as the number of pregnancies, the quantity of insulin administered to the patients increased likewise.</p>
+<p>Weak or no correlations can also be observed in the following attributes of the dataset; DiabetesPedigree and Skin Thickness.</p>
+<section id="comparing-outcomes-and-variables" class="level5">
+<h5 class="anchored" data-anchor-id="comparing-outcomes-and-variables">Comparing Outcomes and Variables</h5>
+<p>Age vs Outcome</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dygraphs)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dygraph</span>(nhtemp, <span class="at">main =</span> <span class="st">"New Haven Temperatures"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dyRangeSelector</span>(<span class="at">dateWindow =</span> <span class="fu">c</span>(<span class="st">"1920-01-01"</span>, <span class="st">"1960-01-01"</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> diabetes_data, <span class="fu">aes</span>(<span class="at">x =</span> Age)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Diabetic) <span class="sc">+</span> <span class="fu">theme_dark</span>() <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Number of Patients"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Age(s) of Patients"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
 <div class="cell-output-display">
-<div class="dygraphs html-widget html-fill-item" id="htmlwidget-d5c3cd9bf8c50d22cb54" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-d5c3cd9bf8c50d22cb54">{"x":{"attrs":{"title":"New Haven Temperatures","labels":["year","V1"],"legend":"auto","retainDateWindow":false,"axes":{"x":{"pixelsPerLabel":60}},"showRangeSelector":true,"dateWindow":["1920-01-01T00:00:00.000Z","1960-01-01T00:00:00.000Z"],"rangeSelectorHeight":40,"rangeSelectorPlotFillColor":" #A7B1C4","rangeSelectorPlotStrokeColor":"#808FAB","interactionModel":"Dygraph.Interaction.defaultModel"},"scale":"yearly","annotations":[],"shadings":[],"events":[],"format":"date","data":[["1912-01-01T00:00:00.000Z","1913-01-01T00:00:00.000Z","1914-01-01T00:00:00.000Z","1915-01-01T00:00:00.000Z","1916-01-01T00:00:00.000Z","1917-01-01T00:00:00.000Z","1918-01-01T00:00:00.000Z","1919-01-01T00:00:00.000Z","1920-01-01T00:00:00.000Z","1921-01-01T00:00:00.000Z","1922-01-01T00:00:00.000Z","1923-01-01T00:00:00.000Z","1924-01-01T00:00:00.000Z","1925-01-01T00:00:00.000Z","1926-01-01T00:00:00.000Z","1927-01-01T00:00:00.000Z","1928-01-01T00:00:00.000Z","1929-01-01T00:00:00.000Z","1930-01-01T00:00:00.000Z","1931-01-01T00:00:00.000Z","1932-01-01T00:00:00.000Z","1933-01-01T00:00:00.000Z","1934-01-01T00:00:00.000Z","1935-01-01T00:00:00.000Z","1936-01-01T00:00:00.000Z","1937-01-01T00:00:00.000Z","1938-01-01T00:00:00.000Z","1939-01-01T00:00:00.000Z","1940-01-01T00:00:00.000Z","1941-01-01T00:00:00.000Z","1942-01-01T00:00:00.000Z","1943-01-01T00:00:00.000Z","1944-01-01T00:00:00.000Z","1945-01-01T00:00:00.000Z","1946-01-01T00:00:00.000Z","1947-01-01T00:00:00.000Z","1948-01-01T00:00:00.000Z","1949-01-01T00:00:00.000Z","1950-01-01T00:00:00.000Z","1951-01-01T00:00:00.000Z","1952-01-01T00:00:00.000Z","1953-01-01T00:00:00.000Z","1954-01-01T00:00:00.000Z","1955-01-01T00:00:00.000Z","1956-01-01T00:00:00.000Z","1957-01-01T00:00:00.000Z","1958-01-01T00:00:00.000Z","1959-01-01T00:00:00.000Z","1960-01-01T00:00:00.000Z","1961-01-01T00:00:00.000Z","1962-01-01T00:00:00.000Z","1963-01-01T00:00:00.000Z","1964-01-01T00:00:00.000Z","1965-01-01T00:00:00.000Z","1966-01-01T00:00:00.000Z","1967-01-01T00:00:00.000Z","1968-01-01T00:00:00.000Z","1969-01-01T00:00:00.000Z","1970-01-01T00:00:00.000Z","1971-01-01T00:00:00.000Z"],[49.9,52.3,49.4,51.1,49.4,47.9,49.8,50.9,49.3,51.9,50.8,49.6,49.3,50.6,48.4,50.7,50.9,50.6,51.5,52.8,51.8,51.1,49.8,50.2,50.4,51.6,51.8,50.9,48.8,51.7,51,50.6,51.7,51.5,52.1,51.3,51,54,51.4,52.7,53.1,54.6,52,52,50.9,52.6,50.2,52.6,51.6,51.9,50.5,50.9,51.7,51.4,51.7,50.8,51.9,51.8,51.9,53]]},"evals":["attrs.interactionModel"],"jsHooks":[]}</script>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption>Graph Showing Correlation of Outcome vs Age</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>0 = Non-diabetic</p>
+<p>1= Diabetic</p>
+<p>The ages of the patients are skewed to the right with most of the patients being between the ages of 20 to 40.</p>
+<p>BMI vs Outcome</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> diabetes_data, <span class="fu">aes</span>(<span class="at">x =</span> BMI)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Diabetic) <span class="sc">+</span> <span class="fu">theme_dark</span>() <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Number of Patients"</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"BMI of Patients"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption>Plot Showing Correlation Between Outcome vs BMI</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Blood Pressure vs Outcome</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(diabetes_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(Diabetic), <span class="at">y =</span> DiastolicBloodPressure, <span class="at">fill =</span> <span class="fu">factor</span>(Diabetic))) <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Patients' Blood Pressure"</span>, <span class="at">x =</span> <span class="st">"Diabetes Status"</span>, <span class="at">fill =</span> <span class="st">"Diabetes Status"</span> ) <span class="sc">+</span> <span class="fu">scale_fill_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Non-Diabetic"</span>, <span class="st">"Diabetic"</span>)) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dark</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption>Boxplot Showing Correlation Between Outcome vs BloodPressure</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Visualizing the distribution of blood pressure for each outcome.</p>
+</section>
+</section>
+<section id="preprocess-and-train-data" class="level3">
+<h3 class="anchored" data-anchor-id="preprocess-and-train-data">Preprocess and Train Data</h3>
+<section id="preprocess" class="level5">
+<h5 class="anchored" data-anchor-id="preprocess">Preprocess</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Convert the outcome variable to a factor </span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>diabetes_data<span class="sc">$</span>Diabetic <span class="ot">&lt;-</span> <span class="fu">factor</span>(diabetes_data<span class="sc">$</span>Diabetic, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                                <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Non-Diabetic"</span>, <span class="st">"Diabetic"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Split the data into training and testing sets</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(diabetes_data<span class="sc">$</span>Diabetic, <span class="at">p =</span> <span class="fl">0.7</span>, <span class="at">list =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> diabetes_data[split, ]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> diabetes_data[<span class="sc">-</span>split, ]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Fit the logistic regression model</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>diabetes_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(Diabetic <span class="sc">~</span> Pregnancies <span class="sc">+</span> PlasmaGlucose <span class="sc">+</span> DiastolicBloodPressure <span class="sc">+</span> TricepsThickness <span class="sc">+</span> </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                       SerumInsulin <span class="sc">+</span> BMI <span class="sc">+</span> DiabetesPedigree <span class="sc">+</span> Age,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> train_data, <span class="at">family =</span> binomial)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: Summarize the model to see coefficients and other details</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(diabetes_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Diabetic ~ Pregnancies + PlasmaGlucose + DiastolicBloodPressure + 
+    TricepsThickness + SerumInsulin + BMI + DiabetesPedigree + 
+    Age, family = binomial, data = train_data)
+
+Coefficients:
+                         Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)            -8.7112122  0.2194791 -39.690  &lt; 2e-16 ***
+Pregnancies             0.2698705  0.0080060  33.709  &lt; 2e-16 ***
+PlasmaGlucose           0.0096941  0.0008234  11.773  &lt; 2e-16 ***
+DiastolicBloodPressure  0.0121392  0.0015853   7.657  1.9e-14 ***
+TricepsThickness        0.0226795  0.0018192  12.467  &lt; 2e-16 ***
+SerumInsulin            0.0039586  0.0001944  20.367  &lt; 2e-16 ***
+BMI                     0.0486785  0.0027794  17.514  &lt; 2e-16 ***
+DiabetesPedigree        1.0392443  0.0670211  15.506  &lt; 2e-16 ***
+Age                     0.0590712  0.0020860  28.318  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 13366.8  on 10499  degrees of freedom
+Residual deviance:  9151.1  on 10491  degrees of freedom
+AIC: 9169.1
+
+Number of Fisher Scoring iterations: 5</code></pre>
 </div>
 </div>
 </section>
+<section id="train-model" class="level5">
+<h5 class="anchored" data-anchor-id="train-model">Train Model</h5>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate predictions on the test set</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>test_data<span class="sc">$</span>predicted_prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(diabetes_model, <span class="at">newdata =</span> test_data, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>test_data<span class="sc">$</span>predicted_class <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">ifelse</span>(test_data<span class="sc">$</span>predicted_prob <span class="sc">&gt;</span> <span class="fl">0.5</span>, </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">"Diabetic"</span>, <span class="st">"Non-Diabetic"</span>),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Non-Diabetic"</span>, <span class="st">"Diabetic"</span>))</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create confusion matrix</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="ot">&lt;-</span> <span class="fu">confusionMatrix</span>(<span class="at">data =</span> test_data<span class="sc">$</span>predicted_class,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">reference =</span> test_data<span class="sc">$</span>Diabetic,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">positive =</span> <span class="st">"Diabetic"</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Print confusion matrix and statistics</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+              Reference
+Prediction     Non-Diabetic Diabetic
+  Non-Diabetic         2671      627
+  Diabetic              329      873
+                                          
+               Accuracy : 0.7876          
+                 95% CI : (0.7753, 0.7994)
+    No Information Rate : 0.6667          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.497           
+                                          
+ Mcnemar's Test P-Value : &lt; 2.2e-16       
+                                          
+            Sensitivity : 0.5820          
+            Specificity : 0.8903          
+         Pos Pred Value : 0.7263          
+         Neg Pred Value : 0.8099          
+             Prevalence : 0.3333          
+         Detection Rate : 0.1940          
+   Detection Prevalence : 0.2671          
+      Balanced Accuracy : 0.7362          
+                                          
+       'Positive' Class : Diabetic        
+                                          </code></pre>
+</div>
+</div>
 </section>
-<section id="conclusions" class="level1">
-<h1>Conclusions</h1>
+<section id="case-study" class="level4">
+<h4 class="anchored" data-anchor-id="case-study">Case Study</h4>
+<p>Predicting diabetes for a new patient named Molly_Jane.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the new patient's data for prediction</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>Molly_Jane <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Pregnancies =</span> <span class="dv">2</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">PlasmaGlucose =</span> <span class="dv">120</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a> <span class="at">DiastolicBloodPressure =</span> <span class="dv">70</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">TricepsThickness =</span> <span class="dv">30</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">SerumInsulin =</span> <span class="dv">85</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">BMI =</span> <span class="fl">28.5</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">DiabetesPedigree =</span> <span class="fl">0.627</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Age =</span> <span class="dv">45</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the model to predict the probability for the new patient</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>prediction_prob <span class="ot">&lt;-</span> <span class="fu">predict</span>(diabetes_model, <span class="at">newdata =</span> Molly_Jane, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert probability to class prediction with explicit labeling</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>prediction_class <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(prediction_prob <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="st">"Diabetic"</span>, <span class="st">"Non-Diabetic"</span>)</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the results with formatted probability and text label</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Predicted probability of diabetes:"</span>, <span class="fu">round</span>(prediction_prob, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)<span class="co">#rounded to 3 decimal points</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Predicted probability of diabetes: 0.391 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Predicted class for the new patient:"</span>, prediction_class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Predicted class for the new patient: Non-Diabetic</code></pre>
+</div>
+</div>
+<p>With a probability of 39.1 %, Molly_Jane is classified as Non-Diabetic.</p>
+</section>
+<section id="roc-curve" class="level4">
+<h4 class="anchored" data-anchor-id="roc-curve">ROC Curve</h4>
+</section>
+<section id="section" class="level4">
+<h4 class="anchored" data-anchor-id="section"></h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pROC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Type 'citation("pROC")' for a citation.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'pROC'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    cov, smooth, var</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>roc_curve <span class="ot">&lt;-</span> <span class="fu">roc</span>(test_data<span class="sc">$</span>Diabetic, test_data<span class="sc">$</span>predicted_prob, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Non-Diabetic"</span>, <span class="st">"Diabetic"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting direction: controls &lt; cases</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(roc_curve, <span class="at">col =</span> <span class="st">"blue"</span>, <span class="at">main =</span> <span class="st">"ROC Curve for Diabetes Prediction"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption>Model’s ROC Curve</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The Receiver’s Operating Characteristic (ROC) shows the overall performance of the model is good. With an AUC (Area Under the Curve) of about 0.8 or higher, the model will be about 80% of the time accurate in predicting if a patient is diabetic or non-diabetic.</p>
+</section>
+</section>
+<section id="conclusions" class="level3">
+<h3 class="anchored" data-anchor-id="conclusions">Conclusions</h3>
 <p>[~200 words]</p>
 <p>Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.</p>
 </section>
+</section>
 <section id="references" class="level1">
 <h1>References</h1>
-<p>All sources are cited in a consistent manner</p>
+<p>Chou C-Y, Hsu D-Y, Chou C-H. Predicting the Onset of Diabetes with Machine Learning Methods.&nbsp;<em>Journal of Personalized Medicine</em>. 2023; 13(3):406. https://doi.org/10.3390/jpm13030406</p>
+<p>Geeks for Geeks Prediction Using R Course: <a href="https://www.geeksforgeeks.org/diabetes-prediction-using-r/" class="uri">https://www.geeksforgeeks.org/diabetes-prediction-using-r/</a></p>
+<p>Pranto B, Mehnaz S, Mahid EB et al.&nbsp;Evaluating machine learning methods for predicting diabetes among female patients in bangladesh.&nbsp;<em>Information</em>&nbsp;2020; 11: 374.</p>
+<p>Talukder MdA, Islam MdM, Uddin MA, et al.&nbsp;Toward reliable diabetes prediction: Innovations in data engineering and machine learning applications. DIGITAL HEALTH. 2024;10. doi:10.1177/20552076241271867</p>
+<p>Tamunoye Darego (2022) Diabetes Prediction using kNN in R</p>
+<p>World Health Organization&nbsp;(2023): <a href="https://www.who.int/news-room/fact-sheets/detail/diabetes" class="uri">https://www.who.int/news-room/fact-sheets/detail/diabetes</a></p>
+<p>Xavier Robin, Natacha Turck, Alexandre Hainard, Natalia Tiberti, Frédérique Lisacek, Jean-Charles Sanchez and Markus Müller (2011). “pROC: an open-source package for R and S+ to analyze and compare ROC curves”.&nbsp;<em>BMC Bioinformatics</em>,&nbsp;<strong>12</strong>, p.&nbsp;77. DOI: doi:&nbsp;<a href="https://doi.org/10.1186/1471-2105-12-77">10.1186/1471-2105-12-77</a></p>
 
 
 </section>
