@@ -60,15 +60,9 @@ Dataset can be found here: (<https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHA
 
 5.  Evaluate model
 
-6.  Make prediction
+6.  Make prediction with case study
 
-Here's my first code chunk.
-
-```{r}
-x=3+4
-```
-
-Refer to output in your narrative like this: x=`r x` .
+7.  ROC Curve
 
 ### Load Required Packages
 
@@ -129,7 +123,7 @@ The dataset contains 15000 patient entries, with all features being numeric valu
 
 ##### Clean Dataset
 
-```{r}
+```{r results='hide'}
 duplicated(diabetes_data) #check for duplicates
 sum(is.na(diabetes_data)) #to check missing values 
 
@@ -147,14 +141,15 @@ filtered_diabetes <- subset(diabetes_data, select = -c(PatientID,Diabetic))
 
 correlation_matrix <- cor(filtered_diabetes)
 
-# Convert correlation matrix to long format for easier analysis
+# Convert correlation matrix from wide to long format for easier analysis
 correlation_melted <- melt(correlation_matrix)
 
 #see the outcome
 correlation_melted%>%
   kable(digits=8,align="c")%>% #make table and round to two digits
   kable_styling(bootstrap_options = 
-                  c("striped", "hover", "condensed", "responsive",  full_width = FALSE))  
+                  c("striped", "hover", "condensed", "responsive",  fixed_thead = TRUE))%>%
+  scroll_box(width = "100%", height = "400px") #scroll option long table
 
 ```
 
@@ -167,7 +162,7 @@ ggplot(correlation_melted, aes(Var1, Var2, fill=value)) +
   scale_fill_gradient2(low= "blue", high="red", mid="white", midpoint=0, 
                        limit=c(-1,1), space = "Lab", name="Correlation") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + #so the xlabs are not scrunched together
   labs(title="Correlation Heatmap", x="Features", y="Features")
 
 ```
@@ -213,20 +208,22 @@ Visualizing the distribution of blood pressure for each outcome.
 
 ```{r}
 # Step 1: Convert the outcome variable to a factor 
-diabetes_data2 <- factor(diabetes_data$Diabetic, levels = c(0, 1), labels = c("Non-Diabetic", "Diabetic"))
+diabetes_data$Diabetic <- factor(diabetes_data$Diabetic, 
+                                levels = c(0, 1), 
+                                labels = c("Non-Diabetic", "Diabetic"))
 ```
 
 ```{r}
 # Step 2: Split the data into training and testing sets
 set.seed(123)  # for reproducibility
-split <- createDataPartition(diabetes_data2, p = 0.7, list = FALSE)
+split <- createDataPartition(diabetes_data$Diabetic, p = 0.7, list = FALSE)
 train_data <- diabetes_data[split, ]
 test_data <- diabetes_data[-split, ]
 
 # Step 3: Fit the logistic regression model
 diabetes_model <- glm(Diabetic ~ Pregnancies + PlasmaGlucose + DiastolicBloodPressure + TricepsThickness + 
                        SerumInsulin + BMI + DiabetesPedigree + Age,
-                      data = train_data, family = "binomial")
+                      data = train_data, family = binomial)
 
 # Step 4: Summarize the model to see coefficients and other details
 summary(diabetes_model)
@@ -237,23 +234,28 @@ summary(diabetes_model)
 ```{r}
 # Generate predictions on the test set
 test_data$predicted_prob <- predict(diabetes_model, newdata = test_data, type = "response")
-test_data$predicted_class <- ifelse(test_data$predicted_prob > 0.5, "Diabetic", "Non Diabetic")
+test_data$predicted_class <- factor(ifelse(test_data$predicted_prob > 0.5, 
+                                         "Diabetic", "Non-Diabetic"),
+                                  levels = c("Non-Diabetic", "Diabetic"))
 
-# Ensure Outcome is a factor to match predicted class levels
-test_data$Outcome <- factor(test_data$Diabetic, levels = c("Diabetic", "Non Diabetic"))
 
 # Create confusion matrix
-confusion_matrix <- table(Predicted = test_data$predicted_class, Actual = test_data$Diabetic)
+confusion_matrix <- confusionMatrix(data = test_data$predicted_class,
+                                  reference = test_data$Diabetic,
+                                  positive = "Diabetic")
+
+
+# Print confusion matrix and statistics
 print(confusion_matrix)
 ```
 
 #### Case Study
 
-Predicting diabetes for a new patient.
+Predicting diabetes for a new patient named Molly_Jane.
 
 ```{r}
 # Define the new patient's data for prediction
-new_patient <- data.frame(
+Molly_Jane <- data.frame(
   Pregnancies = 2,
   PlasmaGlucose = 120,
  DiastolicBloodPressure = 70,
@@ -264,30 +266,36 @@ new_patient <- data.frame(
   Age = 45
 )
 
-# Use the model to predict the probability and the class for the new patient
-prediction_prob <- predict(diabetes_model, new_patient, type = "response")
-prediction_class <- ifelse(prediction_prob > 0.5, "Diabetic", "Non Diabetic")
+# Use the model to predict the probability for the new patient
+prediction_prob <- predict(diabetes_model, newdata = Molly_Jane, type = "response")
 
-# Print the prediction to see results
-cat("Predicted probability of diabetes:", prediction_prob, "\n")
+# Convert probability to class prediction with explicit labeling
+prediction_class <- ifelse(prediction_prob > 0.5, "Diabetic", "Non-Diabetic")
+
+# Print the results with formatted probability and text label
+cat("Predicted probability of diabetes:", round(prediction_prob, 3), "\n")#rounded to 3 decimal points
 cat("Predicted class for the new patient:", prediction_class)
 
 
 ```
 
-The patient is non-diabetic.
+With a probability of 39.1 %, Molly_Jane is classified as Non-Diabetic.
 
-ROC Curve
+#### ROC Curve 
 
-#### Results
+#### 
 
-\[\~200 words\]
+```{r fig.width=5, fig.height=4, fig.cap="Model's ROC Curve"}
+library(pROC)
+roc_curve <- roc(test_data$Diabetic, test_data$predicted_prob, levels = c("Non-Diabetic", "Diabetic"))
 
-Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.
+plot(roc_curve, col = "blue", main = "ROC Curve for Diabetes Prediction")
 
-Show tables, plots, etc. and describe them.
+```
 
-# Conclusions
+The Receiver's Operating Characteristic (ROC) shows the overall performance of the model is good. With an AUC (Area Under the Curve) of about 0.8 or higher, the model will be about 80% of the time accurate in predicting if a patient is diabetic or non-diabetic.
+
+### Conclusions
 
 \[\~200 words\]
 
