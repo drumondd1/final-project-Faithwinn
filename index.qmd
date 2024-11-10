@@ -69,9 +69,9 @@ Dataset can be found here: (<https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHA
 Loading necessary r packages to aid analysis.
 
 ```{r, message=F, warning=F}
-#install.packages("corrplot")
-#install.packages("caret")
-#install.packages("kableExtra")
+install.packages("corrplot")
+install.packages("caret")
+install.packages("kableExtra")
 library(tidyverse)
 library(leaflet)
 library(kableExtra)
