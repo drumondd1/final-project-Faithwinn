@@ -88,7 +88,7 @@ library(gmodels)
 library(class)
 library(corrplot)
 library(caret)
-library(reshape2) #to use melt function
+library(reshape2) #for melt function
 library(rmarkdown) 
 library(knitr)
 knitr::opts_chunk$set(widgetframe_widgets_dir = 'widgets' ) 
