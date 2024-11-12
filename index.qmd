@@ -68,10 +68,10 @@ Dataset can be found here: (<https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHA
 
 Loading necessary r packages to aid analysis.
 
-```{r, message=F, warning=F}
-install.packages("corrplot")
-install.packages("caret")
-install.packages("kableExtra")
+```{r, message=F, warning=FALSE, results='hide'}
+#install.packages("corrplot")
+#install.packages("caret")
+#install.packages("kableExtra")
 library(tidyverse)
 library(leaflet)
 library(kableExtra)
@@ -87,6 +87,7 @@ library(caret)
 library(reshape2) #for melt function
 library(rmarkdown) 
 library(knitr)
+library(pROC)
 knitr::opts_chunk$set(widgetframe_widgets_dir = 'widgets' ) 
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
 ```
@@ -214,14 +215,14 @@ Visualizing the distribution of blood pressure for each outcome.
 ##### Preprocess
 
 ```{r}
-# Step 1: Convert the outcome variable to a factor 
+# Convert the outcome variable to a factor 
 diabetes_data$Diabetic <- factor(diabetes_data$Diabetic, 
                                 levels = c(0, 1), 
                                 labels = c("Non-Diabetic", "Diabetic"))
 ```
 
 ```{r}
-# Step 2: Split the data into training and testing sets
+# Split the data into training and testing sets
 set.seed(123)  # for reproducibility
 split <- createDataPartition(diabetes_data$Diabetic, p = 0.7, list = FALSE)
 train_data <- diabetes_data[split, ]
@@ -232,11 +233,11 @@ diabetes_model <- glm(Diabetic ~ Pregnancies + PlasmaGlucose + DiastolicBloodPre
                        SerumInsulin + BMI + DiabetesPedigree + Age,
                       data = train_data, family = binomial)
 
-# Step 4: Summarize the model to see coefficients and other details
+#  Summarize the model to see coefficients and other details
 summary(diabetes_model)
 ```
 
-##### Train Model 
+##### Train Model
 
 ```{r}
 # Generate predictions on the test set
@@ -255,6 +256,42 @@ confusion_matrix <- confusionMatrix(data = test_data$predicted_class,
 # Print confusion matrix and statistics
 print(confusion_matrix)
 ```
+
+This confusion matrix shows:
+
+-   The model correctly predicted 873 diabetic patients.
+
+```{=html}
+<!-- -->
+```
+-   The model correctly predicted 2671 non-diabetic patients.
+
+```{=html}
+<!-- -->
+```
+-   Accuracy: Overall, the model is correct 78.76% of the time.
+
+```{=html}
+<!-- -->
+```
+-   Sensitivity (Recall): 58.20%. This means the model correctly identifies 58.20% of actual diabetic cases.
+
+```{=html}
+<!-- -->
+```
+-   Specificity: 89.03%. This means the model correctly identifies 89.03% of actual non-diabetic cases.
+
+```{=html}
+<!-- -->
+```
+-   Precision: 72.63%. Of those predicted as diabetic, 72.63% are actually diabetic.
+
+```{=html}
+<!-- -->
+```
+-   Negative Predictive Value: 80.99%. Of those predicted as non-diabetic, 80.99% are actually non-diabetic.
+
+    The "Positive' Class : Diabetic" explanation at the end means that the "Diabetic" class is considered the positive class in this analysis.
 
 #### Case Study
 
@@ -286,14 +323,11 @@ cat("Predicted class for the new patient:", prediction_class)
 
 ```
 
-With a probability of 39.1 %, Molly_Jane is classified as Non-Diabetic.
+With a probability of 39.1 %, Molly_Jane is classified as Non-Diabetic. A probability higher than 0.5 means the patient might be diabetic.
 
-#### ROC Curve 
-
-#### 
+### ROC Curve
 
 ```{r fig.width=5, fig.height=4, fig.cap="Model's ROC Curve"}
-library(pROC)
 roc_curve <- roc(test_data$Diabetic, test_data$predicted_prob, levels = c("Non-Diabetic", "Diabetic"))
 
 plot(roc_curve, col = "blue", main = "ROC Curve for Diabetes Prediction")
@@ -304,9 +338,9 @@ The Receiver's Operating Characteristic (ROC) shows the overall performance of t
 
 ### Conclusions
 
-\[\~200 words\]
+Diabetes is a serious chronic disease. Early diagnosis is crucial for effective management. This project used logistic regression to predict diabetes onset using eight key medical parameters which includes Age, Blood pressure, Insulin, BMI, Triceps thickness, number of pregnancies, Diabetes pedigree and glucose level.
 
-Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.
+After training and evaluation, the model achieved impressive results, with AUC score of 0.8. This shows the potential of machine learning to improve diabetes prediction. Using models like this to predict diabetes for new patients and existing patients can help increase early and effective diagnosis. It would also go a long way to encourage effective management.
 
 # References
 
