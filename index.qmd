@@ -1,9 +1,10 @@
 ---
 title: "Predicting Diabetes Using Logistic Regression in R"
 author: Faithwin Gbadamosi
-subtitle: Final Project for Geo 511
+subtitle: Final Project for Spatial Data Science
 date: today
 date-format: long
+format: html
 ---
 
 # Introduction
@@ -66,12 +67,16 @@ Dataset can be found here: (<https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHA
 
 ### Load Required Packages
 
-Loading necessary r packages to aid analysis.
+Load necessary r packages to aid analysis.
 
-```{r, message=F, warning=FALSE, results='hide'}
+```{r, message=F, warning=FALSE, results='hide', echo=FALSE}
 #install.packages("corrplot")
 #install.packages("caret")
 #install.packages("kableExtra")
+# install.packages("tinytex")
+#install.packages("DT")
+install.packages("heatmaply")
+library(tinytex)
 library(tidyverse)
 library(leaflet)
 library(kableExtra)
@@ -87,7 +92,11 @@ library(caret)
 library(reshape2) #for melt function
 library(rmarkdown) 
 library(knitr)
-library(pROC)
+library(pROC) #for ROC Curve
+library(widgetframe)
+library(DT)
+library(heatmaply)
+library(plotly)
 knitr::opts_chunk$set(widgetframe_widgets_dir = 'widgets' ) 
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
 ```
@@ -125,6 +134,7 @@ diabetes_data%>%
 ```{r}
 #Exploring the structure of the data
 str(diabetes_data)
+  
 ```
 
 The dataset contains 15000 patient entries, with all features being numeric values.
@@ -148,8 +158,9 @@ Correlation and visual summary
 filtered_diabetes <- subset(diabetes_data, select = -c(PatientID,Diabetic))
 
 correlation_matrix <- cor(filtered_diabetes)
+View(correlation_matrix)
 
-# Convert correlation matrix from wide to long format for easier analysis
+# Convert correlation matrix from wide to long format for visualization
 correlation_melted <- melt(correlation_matrix)
 
 #see the outcome
@@ -159,19 +170,30 @@ correlation_melted%>%
                   c("striped", "hover", "condensed", "responsive",  fixed_thead = TRUE))%>%
   scroll_box(width = "100%", height = "400px") #scroll option long table
 
+
 ```
 
 Plot correlation heatmap
 
-```{r fig.width=5, fig.height=4, fig.cap="Correlation HeatMap"}
+```{r fig.width=8, fig.height=6,fig.cap="Interactive Correlation HeatMap"}
 # Plot heatmap
-ggplot(correlation_melted, aes(Var1, Var2, fill=value)) +
-  geom_tile(color="white") +
-  scale_fill_gradient2(low= "blue", high="red", mid="white", midpoint=0, 
-                       limit=c(-1,1), space = "Lab", name="Correlation") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + #so the xlabs are not scrunched together
-  labs(title="Correlation Heatmap", x="Features", y="Features")
+heatmaply(
+  correlation_matrix,
+  dendrogram = "none",
+  xlab = "Features",
+  ylab = "Features",
+  main = "Correlation Heatmap",
+  colors = colorRampPalette(c("red", "white", "brown"))(100),
+  limits = c(-1, 1),
+  branches_lwd = 0.1,
+  titleX = FALSE,
+  titleY = FALSE,
+        label_names = c("Variable", "Factor", "Value"),
+        fontsize_row = 10, fontsize_col = 10,
+        labCol = colnames(correlation_matrix),
+        labRow = rownames(correlation_matrix),
+        heatmap_layers = theme(axis.line = element_blank())
+)
 
 ```
 
@@ -183,7 +205,7 @@ Weak or no correlations can also be observed in the following attributes of the 
 
 Age vs Outcome
 
-```{r fig.width=5, fig.height=4, fig.cap="Graph Showing Correlation of Outcome vs Age"}
+```{r fig.width=8, fig.height=4, fig.cap="Graph Showing Correlation of Outcome vs Age", warning=FALSE, message=FALSE}
 ggplot(data = diabetes_data, aes(x = Age)) + geom_histogram(color = "blue", fill = "lightblue") + facet_wrap(~Diabetic) + theme_dark() + ylab("Number of Patients") + labs(title = "Age(s) of Patients")
 ```
 
@@ -195,16 +217,17 @@ The ages of the patients are skewed to the right with most of the patients being
 
 BMI vs Outcome
 
-```{r fig.width=5, fig.height=4, fig.cap="Plot Showing Correlation Between Outcome vs BMI"}
+```{r fig.width=8, fig.height=4, fig.cap="Plot Showing Correlation Between Outcome vs BMI", warning=FALSE, message=FALSE}
 ggplot(data = diabetes_data, aes(x = BMI)) + geom_histogram(color = "blue", fill = "lightblue") + facet_wrap(~Diabetic) + theme_dark() + ylab("Number of Patients") + labs(title = "BMI of Patients")
 ```
 
 Blood Pressure vs Outcome
 
-```{r fig.width=5, fig.height=4, fig.cap="Boxplot Showing Correlation Between Outcome vs BloodPressure"}
+```{r fig.width=8, fig.height=4, fig.cap="Violin plot Showing Correlation Between Outcome vs BloodPressure"}
 ggplot(diabetes_data, aes(x = factor(Diabetic), y = DiastolicBloodPressure, fill = factor(Diabetic))) +
-  geom_boxplot() +
-  labs(title = "Patients' Blood Pressure", x = "Diabetes Status", fill = "Diabetes Status" ) + scale_fill_discrete(labels = c("Non-Diabetic", "Diabetic")) +
+  geom_violin() +
+  labs(title = "Patients' Blood Pressure", x = "Diabetes Status", fill = "Diabetes Status" ) +
+  scale_fill_discrete(labels = c("Non-Diabetic", "Diabetic")) +
   theme_dark()
 ```
 
@@ -261,34 +284,16 @@ This confusion matrix shows:
 
 -   The model correctly predicted 873 diabetic patients.
 
-```{=html}
-<!-- -->
-```
 -   The model correctly predicted 2671 non-diabetic patients.
 
-```{=html}
-<!-- -->
-```
 -   Accuracy: Overall, the model is correct 78.76% of the time.
 
-```{=html}
-<!-- -->
-```
 -   Sensitivity (Recall): 58.20%. This means the model correctly identifies 58.20% of actual diabetic cases.
 
-```{=html}
-<!-- -->
-```
 -   Specificity: 89.03%. This means the model correctly identifies 89.03% of actual non-diabetic cases.
 
-```{=html}
-<!-- -->
-```
 -   Precision: 72.63%. Of those predicted as diabetic, 72.63% are actually diabetic.
 
-```{=html}
-<!-- -->
-```
 -   Negative Predictive Value: 80.99%. Of those predicted as non-diabetic, 80.99% are actually non-diabetic.
 
     The "Positive' Class : Diabetic" explanation at the end means that the "Diabetic" class is considered the positive class in this analysis.
@@ -327,11 +332,58 @@ With a probability of 39.1 %, Molly_Jane is classified as Non-Diabetic. A probab
 
 ### ROC Curve
 
-```{r fig.width=5, fig.height=4, fig.cap="Model's ROC Curve"}
+```{r fig.width=8, fig.height=4, fig.cap="Model's ROC Curve", echo=FALSE, message=FALSE}
 roc_curve <- roc(test_data$Diabetic, test_data$predicted_prob, levels = c("Non-Diabetic", "Diabetic"))
 
-plot(roc_curve, col = "blue", main = "ROC Curve for Diabetes Prediction")
-
+# Create interactive ROC plot
+plot_ly(
+  x = 1 - roc_curve$specificities,  # Note: x-axis is 1 - specificity 
+  y = roc_curve$sensitivities, 
+  type = 'scatter', 
+  mode = 'lines',
+  line = list(color = "blue"),
+  name = "ROC Curve"
+) %>%
+  add_trace(
+    x = c(0,1),
+    y = c(0,1),
+    type = 'scatter',
+    mode = 'lines',
+    line = list(color = "red", dash = 'dash'),
+    name = "Random Classifier"
+  ) %>%
+  layout(
+    title = list(
+      text = paste("Interactive ROC Curve for Diabetes Prediction (AUC =", round(auc(roc_curve), 3), ")"),
+      x = 0.5,
+      y = 0.95
+    ),
+    xaxis = list(
+      title = "False Positive Rate (1 - Specificity)",
+      zeroline = FALSE,
+      gridcolor = 'rgb(240,240,240)'
+    ),
+    yaxis = list(
+      title = "True Positive Rate (Sensitivity)",
+      zeroline = FALSE,
+      gridcolor = 'rgb(240,240,240)'
+    ),
+    shapes = list(
+      type = 'line',
+      x0 = 0,
+      x1 = 1,
+      y0 = 0,
+      y1 = 1,
+      line = list(
+        dash = 'dot',
+        width = 1,
+        color = 'gray'
+      )
+    ),
+    plot_bgcolor = 'rgb(255,255,255)',
+    showlegend = TRUE,
+    legend = list(x = 0.8, y = 0.2)
+  )
 ```
 
 The Receiver's Operating Characteristic (ROC) shows the overall performance of the model is good. With an AUC (Area Under the Curve) of about 0.8 or higher, the model will be about 80% of the time accurate in predicting if a patient is diabetic or non-diabetic.
