@@ -1,1 +1,1 @@
-Sitemap: https://AdamWilsonLabEDU.github.io/Faithwinn_Final_Project/sitemap.xml
+Sitemap: https://AdamWilsonLabEDU.github.io/final-project-Faithwinn/sitemap.xml
