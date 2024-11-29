@@ -70,12 +70,12 @@ Dataset can be found here: (<https://drive.google.com/file/d/1eAplOYO-k7ZYHj4uHA
 Load necessary r packages to aid analysis.
 
 ```{r, message=F, warning=FALSE, results='hide', echo=FALSE}
-install.packages("corrplot")
-install.packages("caret")
-install.packages("kableExtra")
- install.packages("tinytex")
-install.packages("DT")
-install.packages("heatmaply")
+#install.packages("corrplot")
+#install.packages("caret")
+#install.packages("kableExtra")
+ #install.packages("tinytex")
+#install.packages("DT")
+#install.packages("heatmaply")
 library(tinytex)
 library(tidyverse)
 library(leaflet)
@@ -261,7 +261,7 @@ summary(diabetes_model)
 
 ##### Train Model
 
-```{r}
+```{r message=F, warning=FALSE}
 # Generate predictions on the test set
 test_data$predicted_prob <- predict(diabetes_model, newdata = test_data, type = "response")
 test_data$predicted_class <- factor(ifelse(test_data$predicted_prob > 0.5, 
