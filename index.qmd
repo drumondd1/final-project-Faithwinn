@@ -225,9 +225,10 @@ Blood Pressure vs Outcome
 ```{r fig.width=8, fig.height=4, fig.cap="Violin plot Showing Correlation Between Outcome vs BloodPressure"}
 ggplot(diabetes_data, aes(x = factor(Diabetic), y = DiastolicBloodPressure, fill = factor(Diabetic))) +
   geom_violin() +
+  geom_boxplot(width = 0.2, fill = "white", alpha = 0.5) +
   labs(title = "Patients' Blood Pressure", x = "Diabetes Status", fill = "Diabetes Status" ) +
   scale_fill_discrete(labels = c("Non-Diabetic", "Diabetic")) +
-  theme_dark()
+  theme_minimal()
 ```
 
 Visualizing the distribution of blood pressure for each outcome.
