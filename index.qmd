@@ -1,22 +1,26 @@
 ---
-title: "My Final Project Template"
-author: Your name here
+title: "Intersectional climate justice perspective: The case of extreme heat in Erie County, NY."
+author: Enoch Yeleliere
 subtitle: Subtitle here if desired
-date: today
-date-format: long
 ---
 
 # Introduction
 
-\[\~ 200 words\]
+The rise in global temperatures above pre-industrial levels, coupled with rapid urbanization—projected to exceed 70% by 2050 (UN DESA, 2018)—has led to increased greenhouse gas emissions, exacerbating the Urban Heat Effect (UHE) (Jung et al., 2024). This phenomenon has made summers increasingly difficult, especially in parts of the United States (US), with profound socio-ecological impacts and disruptions. The escalation of extreme heat has created significant environmental and social challenges, raising critical concerns related to environmental and climate justice (Mitchell and Chakraborty, 2014). Heatwaves not only contribute to health complications—such as respiratory and cardiovascular issues—but also degrade urban environmental quality, diminishing residents' overall quality of life (Li et al., 2019). These changes are further evidenced by increased electricity consumption during the summer months, as residents rely on air conditioning to mitigate heat risks. However, this reliance creates additional challenges, including disparities in access to cooling systems for vulnerable groups and a 19% rise in energy consumption, leading to higher electricity costs for residents (Li et al., 2019).
 
-Clearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way. Include figures if you like.
+Urban areas with limited urban green infrastructure (UGI) are particularly susceptible to heat risks, as the absence of green spaces correlates with poor air quality and reduced cooling effects (Chen, 2024; Wilby, 2008). While much research has focused on the Urban Heat Island (UHI) effect, often through a climate or environmental justice lens, fewer studies explore the intersectional dimensions of climate justice. Such an intersectional approach integrates factors like surface temperature, socio-demographic characteristics, and the presence of UGI to better understand how vulnerability to heat risk varies across different communities.
+
+This perspective is particularly relevant given the history of systemic discrimination in US cities, where practices like redlining have reduced green infrastructure in minority neighborhoods and intensified racial segregation. In this context, the study addresses the following research questions:
+
+i)  What are the spatial patterns of heat risk in Erie County, New York?
+
+ii) How do socio-demographic, economic, and spatial factors intersect to shape the vulnerability of different groups?
 
 # Materials and methods
 
-\[\~ 200 words\]
+The study used multiple data sources to examine the socioeconomic features of census tracts including the cloud-free 30-m-resolution Landsat 8 satellite from the United States Geological Survey (USGS), surface temperature (APPEARS), and 5-year estimate American Community Survey (ACS) provided by the US Census Bureau (<https://www.census.gov/>) or Tidy census.
 
-Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.
+The study employs spatial regression analysis to investigate the relationship between heat risk—measured by land surface temperature—and the presence of racial minorities, low-income residents, and elderly populations. Additionally, the study identifies variations in spatial pattern variables among these vulnerable groups, categorizing them as low, medium, or high risk. Census tracts with a z-score greater than 1 are classified as “high risk,” those with a z-score lower than -1 are classified as “low risk,” while the remaining tracts are designated as “medium risk.” Subsequently, the study utilizes analysis of variance (ANOVA) to assess the significance of spatial pattern variations among these groups and examines how these disparities contribute to heat inequity.
 
 Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.
 
@@ -30,33 +34,437 @@ You can do bullets like this:
 
 You can do numbers like this:
 
-1.  The first most important thing
-2.  The second most important thing
-3.  The third most important thing
-
-See <http://rmarkdown.rstudio.com/> for all the amazing things you can do.
-
-Here's my first code chunk.
-
-```{r}
-x=3+4
-```
-
-Refer to output in your narrative like this: x=`r x` .
-
-Load any required packages in a code chunk (you may need to install some packages):
+#Load required packages:
 
 ```{r, message=F, warning=F}
 library(tidyverse)
+library(tidycensus)
 library(leaflet)
-library(kableExtra)
-library(htmlwidgets)
-library(widgetframe)
-knitr::opts_chunk$set(widgetframe_widgets_dir = 'widgets' ) 
+library(dplyr)         # For data manipulation
+library(terra)
+library(rasterVis)
+library(ggmap)
+library(sf)            # For handling spatial data
+library(mapview)
+library(ggplot2)       # For plotting
 knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
 ```
 
-## Download and clean all required data
+## Download and clean all required data raster data (Landsat 9 collection 2 level 1)
+
+```{r}
+#Define boundary raster with specified extents 
+boundary <- rast(extent = c(xmin = -78.9, xmax = -78.85, ymin = 42.888, ymax = 42.92))
+print(boundary)
+```
+
+```{r}
+
+# Raster (TIF. Files) 
+tif_files <- list.files("data", pattern = "\\.TIF$", full.names = TRUE) #include only TIF files from the landsat data
+
+#Load the rasters 
+rasters <- lapply(tif_files, rast)  #the extents across the 17 TIF files are different
+```
+
+```{r}
+#Check extents, resolutions, and CRS of each raster
+extents <- lapply(rasters, ext)
+
+resolutions <- lapply(rasters, res)
+
+crs_list <- lapply(rasters, crs)
+
+#Find common extent to able the stack function
+common_extent <- Reduce(intersect, extents) #common extent is 581985, 811215, 4667385, 4899915  (xmin, xmax, ymin, ymax) from B1.TIF
+print(common_extent) 
+
+#Find common resolution
+common_res <- res(rasters[[1]])
+```
+
+```{r}
+
+# Ensure the same CRS for all rasters 
+reference_crs <- crs(rasters[[1]])
+rasters <- lapply(rasters, function(r) {
+    if (!identical(crs(r), reference_crs)) {
+        project(r, reference_crs)
+    } else {
+        r
+    }
+})
+```
+
+```{r}
+#Create a reference raster with common extent and resolution
+ref_raster <- rast(extent = common_extent, res = common_res, crs = reference_crs)
+# Crop and resample each raster to the common extent and resolution 
+rasters_aligned <- lapply(rasters, function(r) {
+    r_cropped <- crop(r, common_extent)
+    r_resampled <- resample(r_cropped, ref_raster)
+    return(r_resampled)
+})
+```
+
+```{r}
+image <- do.call(c, rasters_aligned)  # 'c()' is used to concatenate SpatRasters
+plot(image[[1:12]], main = "First Band of the Combined Raster")
+```
+
+```{r}
+library(terra)
+
+# Stack the aligned rasters
+raster_stack <- rast(rasters_aligned)
+
+# Ensure the boundary is in the same CRS as the raster stack
+if (crs(raster_stack) != crs(boundary)) {
+  boundary <- project(boundary, crs(raster_stack))
+}
+
+# Crop the raster stack using the boundary
+raster_cropped <- crop(raster_stack, boundary)
+
+# Plot the cropped raster
+plot(raster_cropped[[1:12]], main = "First Band of the Cropped Raster")
+
+```
+
+```{r}
+#Extract temperature values from the cropped raster stack (first 12 bands)
+temperature_stack <- raster_cropped[[1:12]]
+plot(temperature_stack)
+
+# Compute the mean temperature across the bands of the cropped raster
+temperature_stack <- raster_cropped[[1:12]]
+mean_temperature <- app(temperature_stack, fun = mean, na.rm = TRUE)
+plot(mean_temperature)
+print(mean_temp_df)
+
+# Ensure the CRS of the mean temperature raster matches the Erie County shapefile
+if (crs(mean_temperature) != st_crs(erie_county)) {
+  erie_county <- st_transform(erie_county, crs(mean_temperature))
+}
+
+# Define a color palette for temperature
+temperature_palette <- terrain.colors(100)
+
+# Plot the mean temperature with Erie County boundary overlay
+plot(mean_temperature, col = temperature_palette, main = "Mean Surface Temperature in Erie County, NY")
+
+```
+
+#try join and plot again
+```{r}
+# Load Erie County shapefile (adjust the path if necessary)
+erie_shapefile <- "data/erie.shp"
+erie_county <- st_read(erie_shapefile)
+
+# Compute the mean temperature across the bands of the cropped raster
+temperature_stack <- raster_cropped[[1:12]]
+mean_temperature <- app(temperature_stack, fun = mean, na.rm = TRUE)
+
+# Ensure the CRS of the mean temperature raster matches the Erie County shapefile
+if (crs(mean_temperature) != st_crs(erie_county)) {
+  erie_county <- st_transform(erie_county, crs(mean_temperature))
+}
+
+# Extend the mean temperature raster to cover the entire Erie County extent
+mean_temperature_extended <- extend(mean_temperature, ext(erie_county))
+
+# Convert the extended mean temperature raster to a data frame for joining
+mean_temp_df <- as.data.frame(mean_temperature_extended, xy = TRUE)
+colnames(mean_temp_df) <- c("x", "y", "mean_temp")
+
+# Create a spatial points data frame from the mean temperature data frame
+mean_temp_sf <- st_as_sf(mean_temp_df, coords = c("x", "y"), crs = st_crs(erie_county))
+
+# Perform a spatial join between the mean temperature points and the Erie County shapefile
+joined_sf <- st_join(mean_temp_sf, erie_county, join = st_intersects)
+
+# Aggregate mean temperature by blocks (GEOID20)
+mean_temp_by_block <- joined_sf %>%
+  group_by(GEOID20) %>%
+  summarize(mean_temp = mean(mean_temp, na.rm = TRUE))
+
+# Merge the aggregated mean temperature with the Erie County shapefile
+erie_county_with_temp <- st_join(erie_county, mean_temp_by_block, join = st_intersects)
+
+# Plot the mean surface temperature by blocks on the Erie County map
+ggplot() +
+  geom_sf(data = erie_county_with_temp, aes(fill = mean_temp), color = "black") +
+  scale_fill_viridis_c(option = "plasma", name = "Mean Temp (°C)") +
+  coord_sf() +
+  labs(title = "Mean Surface Temperature by Blocks in Erie County, NY",
+       x = "Longitude", y = "Latitude") +
+  theme_minimal()
+```
+
+
+#Plot temperature intensity using color intensity
+
+```{r}
+# Plot RGB with stretching to handle the color intensity issue
+plotRGB(raster_stack, stretch="lin") # Linear stretch
+
+plotRGB(raster_stack, stretch="hist") # Histogram equalization stretch
+```
+
+
+
+```{r}
+# Extract Band 10 and Band 11 from the raster stack
+band10 <- raster_stack[[10]]  # Band 10
+band11 <- raster_stack[[11]]  # Band 11
+# Extract Band 10 and 11 (Thermal Infrared)
+# Combine Band 10 and Band 11 into a new raster stack
+thermal_band <- subset(raster_stack, c(10, 11))
+```                                              (The code clearly extracts Band 10 and Band 11 from the raster stack and combines them into a new raster stack named thermal_band. The first two lines extract the bands individually, which seem redundant since the subset function already combines them. You can remove the individual extraction if not needed elsewhere).
+
+#Calibration
+
+```{r}
+# Define calibration constants for Band 10 (Thermal Infrared 1)
+M10 <- 0.0003800  # Radiometric scaling factor for Band 10
+A10 <- 0.1        # Radiometric offset for Band 10
+K1_B10 <- 799.0284  # Thermal constant K1 for Band 10 (W/m²/sr/µm)
+K2_B10 <- 1329.2405 # Thermal constant K2 for Band 10 (Kelvin)
+# Define calibration constants for Band 11 (Thermal Infrared 2)
+M11 <- 0.00034900  # Radiometric scaling factor for Band 11
+A11 <- 0.1        # Radiometric offset for Band 11
+K1_B11 <- 475.6581  # Thermal constant K1 for Band 11 (W/m²/sr/µm)
+K2_B11 <- 1198.3494 # Thermal constant K2 for Band 11 (Kelvin)
+```
+
+#convert digital numbers (DN) to radiance
+
+```{r}
+# Convert DN to radiance for Band 10
+radiance_b10 <- M10 * band10 + A10
+
+# Convert DN to radiance for Band 11
+radiance_b11 <- M11 * band11 + A11
+
+#Use Planck's law to calculate temperature
+
+# Convert radiance to brightness temperature for Band 10 (in Celsius)
+brightness_temp_b10 <- (K2_B10 / log((K1_B10 / radiance_b10) + 1)) - 273.15
+
+# Convert radiance to brightness temperature for Band 11 (in Celsius)
+brightness_temp_b11 <- (K2_B11 / log((K1_B11 / radiance_b11) + 1)) - 273.15
+
+# Plot brightness temperature for Band 10
+plot(brightness_temp_b10, main = "Brightness Temperature - Band 10 (°C)")
+
+# Plot brightness temperature for Band 11
+plot(brightness_temp_b11, main = "Brightness Temperature - Band 11 (°C)")
+```
+
+```{r}
+# Extract the Red (Band 4) and Near-Infrared (Band 5) bands
+red_band <- raster_stack[[4]]  # Band 4
+nir_band <- raster_stack[[5]]  # Band 5
+
+# Calculate NDVI
+ndvi <- (nir_band - red_band) / (nir_band + red_band)
+
+# Plot the NDVI result
+library(viridis)
+plot(ndvi, main = "NDVI", col = viridis(100))
+```
+
+```{r}
+# Plot RGB composite (e.g., Red, Green, Blue using Bands 4, 3, 2)
+plotRGB(raster_stack, r = 4, g = 3, b = 2, main = "True Color Composite")
+
+# Plot the first few bands
+par(mfrow = c(4, 4))  # Arrange the plot into a 4x4 grid
+for (i in 1:12) {
+  plot(raster_stack[[i]], main = paste("Band", i))
+}
+```
+
+#convert raster_stack to degree
+
+```{r}
+scoff(raster_stack)=cbind(0.02,-273.15)
+plot(raster_stack[[1:12]])
+```
+
+#Correctly load both thermal bands with straight quotes
+
+```{r}
+thermal_band <- c(brightness_temp_b10, brightness_temp_b11)
+# Convert the SpatRaster (thermal_band) to a data frame
+thermal_band_df <- as.data.frame(thermal_band, xy = TRUE)
+```
+
+#Hotspot analysis
+
+```{r}
+
+# (Band 10 and Band 11)
+# Calculate surface temperature (simple average of Band 10 and Band 11 for demonstration)
+surface_temp <- (brightness_temp_b10 + brightness_temp_b11) / 2  # In Celsius
+
+# Check if surface_temp exists and is of the correct type
+if (exists("surface_temp") && class(surface_temp) %in% c("SpatRaster", "RasterLayer")) {
+  # Convert the surface temperature raster to a data frame with x and y coordinates
+  temp_values <- as.data.frame(surface_temp, xy = TRUE, na.rm = TRUE)
+  
+  # Inspect the first few rows of the data frame
+  head(temp_values)
+} else {
+  print("The object 'surface_temp' is not correctly defined. Please check your previous steps.")
+}
+
+# Aggregate temperature data for analysis
+temp_values <- as.data.frame(surface_temp, xy = TRUE, na.rm = TRUE)
+print(temp_values)
+```
+
+```{r}
+library (sp)
+library (sf)
+coordinates(temp_values) <- ~x+y
+```
+
+```{r}
+temp_values <- SpatialPointsDataFrame(cbind(temp_values$x, temp_values$y), temp_values)
+# Create spatial weights matrix
+library(spdep)
+temp_nb <- spdep::knn2nb(knearneigh(coordinates(temp_values), k = 4))
+```
+
+```{r}
+temp_weights <- nb2listw(temp_nb, style = "W")
+
+# Calculate Local Moran's I for hotspot detection
+local_morans <- spdep::localmoran(temp_values$layer, temp_weights)
+
+# Add results to the data frame
+temp_values$hotspot <- local_morans[, 1]  # Local Moran's I statistic
+temp_values$zscore <- local_mzorans[, 4]  # Z-score
+
+# Visualize hotspots
+ggplot(temp_values, aes(x = x, y = y, fill = zscore)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  labs(title = "Surface Temperature Hotspots", fill = "Z-Score")
+
+```
+
+## Prepare census data for socio-demographic characteristics
+
+```{r}
+library(tidycensus)
+census_api_key("677c6e6ec5f3c8621d7b139013d29cb61cf4dcdd", overwrite = TRUE, install = TRUE)
+```
+
+```{r}
+#download block data
+# Define the race variables
+race_vars <- c(
+  "Total Population" = "P1_001N",
+  "White alone" = "P1_003N",
+  "Black or African American alone" = "P1_004N",
+  "American Indian and Alaska Native alone" = "P1_005N",
+  "Asian alone" = "P1_006N",
+  "Native Hawaiian and Other Pacific Islander alone" = "P1_007N",
+  "Some Other Race alone" = "P1_008N",
+  "Two or More Races" = "P1_009N"
+)
+```
+
+```{r}
+# Get census data for race
+options(tigris_use_cache = TRUE)
+erie_race <- get_decennial(geography = "block", variables = race_vars, year=2020,
+                  state = "NY", county = "Erie County", geometry = TRUE,
+                  sumfile = "pl", 
+                  cache_table=T) 
+```
+
+```{r}
+erie_county<-sf_read("data"/Erie_County.shp)
+```
+
+```{r}
+age_vars <- c(
+  "Total Population" = "P1_001N",
+  "Under 5 years" = "P1_003N",
+  "5 to 9 years" = "P1_004N",
+  "10 to 14 years" = "P1_005N",
+  "15 to 19 years" = "P1_006N",
+  "20 to 24 years" = "P1_007N",
+  "25 to 34 years" = "P1_008N",
+  "35 to 44 years" = "P1_009N",
+  "45 to 54 years" = "P1_010N",
+  "55 to 64 years" = "P1_011N",
+  "65 to 74 years" = "P1_012N",
+  "75 to 84 years" = "P1_013N",
+  "85 years and over" = "P1_014N"
+)
+```
+
+```{r}
+# Get census data for age
+options(tigris_use_cache = TRUE)
+erie_age <- get_decennial(geography = "block", variables = age_vars, year = 2020,
+                          state = "NY", county = "Erie County", geometry = TRUE,
+                          sumfile = "pl", cache_table = TRUE)
+```
+
+```{r}
+income_vars <- c(
+  "Total Households" = "B19001_001",
+  "Less than $10,000" = "B19001_002",
+  "$10,000 to $14,999" = "B19001_003",
+  "$15,000 to $19,999" = "B19001_004",
+  "$20,000 to $24,999" = "B19001_005",
+  "$25,000 to $29,999" = "B19001_006",
+  "$30,000 to $34,999" = "B19001_007",
+  "$35,000 to $39,999" = "B19001_008",
+  "$40,000 to $44,999" = "B19001_009",
+  "$45,000 to $49,999" = "B19001_010",
+  "$50,000 to $59,999" = "B19001_011",
+  "$60,000 to $74,999" = "B19001_012",
+  "$75,000 to $99,999" = "B19001_013",
+  "$100,000 to $124,999" = "B19001_014",
+  "$125,000 to $149,999" = "B19001_015",
+  "$150,000 to $199,999" = "B19001_016",
+  "$200,000 or more" = "B19001_017"
+)
+```
+
+```{r}
+# Define your income variable (e.g., B19001_001 for total household income)
+income_vars <- c("B19001_001")
+# Query ACS 5-year estimates at the Block Group level (since block-level data isn't available)
+erie_income <- get_acs(
+  geography = "block group",  # Change from block to block group or tract
+  variables = income_vars,
+  year = 2021,  # 5-year estimates for 2021
+  state = "NY",  # New York State
+  county = "Erie",  # Erie County
+  geometry = TRUE  # Include geometry (spatial data)
+)
+```
+
+##Combine socio-demographic data
+
+```{r}
+# Perform sequential spatial joins 
+race_age_data <- st_join(erie_race, erie_age) 
+combined_data <- st_join(race_age_data, erie_income)
+```
+
+```{r}
+# define census region using a spatial bounding box and rasterize data
+bbox<-st_bbox(erie_race, erie_age, erie_income)
+domain <- raster(resolution=0.008,crs=projection(erie_race),               xmn=bbox$xmin,xmx=bbox$xmax,ymn=bbox$ymin,ymx=bbox$ymax)
+```
 
 ```{r}
 n=20
@@ -81,7 +489,7 @@ Add any additional processing steps here.
 
 # Results
 
-\[\~200 words\]
+[\~200 words]
 
 Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.
 
@@ -101,17 +509,9 @@ data %>%
   geom_point()
 ```
 
-### Dygraphs Example
-
-```{r}
-library(dygraphs)
-dygraph(nhtemp, main = "New Haven Temperatures") |> 
-  dyRangeSelector(dateWindow = c("1920-01-01", "1960-01-01")) 
-```
-
 # Conclusions
 
-\[\~200 words\]
+[\~200 words]
 
 Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.
 
