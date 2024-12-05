@@ -1,119 +1,581 @@
 ---
-title: "My Final Project Template"
-author: Your name here
-subtitle: Subtitle here if desired
-date: today
-date-format: long
+title: "Intersectional climate justice perspective: The case of extreme heat in Erie County, NY"
+author: "Enoch Yeleliere"
+output:
+       github_document
+       html_document
 ---
 
 # Introduction
 
-\[\~ 200 words\]
+The rise in global temperatures above pre-industrial levels, coupled with rapid urbanization—projected to exceed 70% by 2050 (UN DESA, 2018)—has led to increased greenhouse gas emissions, exacerbating the Urban Heat Effect (UHE) (Jung et al., 2024). This phenomenon has made summers increasingly difficult, especially in parts of the United States (US), with profound socio-ecological impacts and disruptions. The escalation of extreme heat has created significant environmental and social challenges, raising critical concerns related to environmental and climate justice (Mitchell and Chakraborty, 2014). Heatwaves not only contribute to health complications—such as respiratory and cardiovascular issues—but also degrade urban environmental quality, diminishing residents' overall quality of life (Li et al., 2019). These changes are further evidenced by increased electricity consumption during the summer months, as residents rely on air conditioning to mitigate heat risks. However, this reliance creates additional challenges, including disparities in access to cooling systems for vulnerable groups and a 19% rise in energy consumption, leading to higher electricity costs for residents (Li et al., 2019).
 
-Clearly stated background and questions / hypotheses / problems being addressed. Sets up the analysis in an interesting and compelling way. Include figures if you like.
+Urban areas with limited urban green infrastructure (UGI) are particularly susceptible to heat risks, as the absence of green spaces correlates with poor air quality and reduced cooling effects (Chen, 2024; Wilby, 2008). While much research has focused on the Urban Heat Island (UHI) effect, often through a climate or environmental justice lens, fewer studies explore the intersectional dimensions of climate justice. Such an intersectional approach integrates factors like surface temperature, socio-demographic characteristics, and the presence of UGI to better understand how vulnerability to heat risk varies across different communities.
+
+This perspective is particularly relevant given the history of systemic discrimination in US cities, where practices like redlining have reduced green infrastructure in minority neighborhoods and intensified racial segregation. In this context, the study addresses the following research questions:
+
+i)  What are the spatial patterns of heat risk in Erie County, New York?
+
+ii) How do socio-demographic, economic, and spatial factors intersect to shape the vulnerability of different groups?
 
 # Materials and methods
 
-\[\~ 200 words\]
+The study used multiple data sources to examine the socioeconomic features of census tracts including the cloud-free 30-m-resolution Landsat 8 satellite from the United States Geological Survey (USGS), surface temperature, and 5-year estimate American Community Survey (ACS) provided by the US Census Bureau (<https://www.census.gov/>).
 
-Narrative: Clear narrative description of the data sources and methods. Includes data from at least two sources that were integrated / merged in R.
+(Your review effectively highlights the complex interplay between urbanization, climate change, and socio-ecological impacts. It underscores the importance of addressing environmental and climate justice to mitigate the adverse effects of the Urban Heat Effect. The research questions you pose are pertinent. Understanding the spatial patterns of heat risk in Erie County, New York, and how socio-demographic, economic, and spatial factors intersect to shape vulnerability will provide valuable insights for addressing these challenges). 
 
-Code: The code associated with the project is well organized and easy to follow. Demonstrates mastery of R graphics and functions.
 
-Data: The underlying data are publicly accessible via the web and downloaded/accessed within the Rmd script. If you want to use your own data, you must make it available on a website (e.g. Figshare) so that others are able to re-run your code.
-
-You can do bullets like this:
-
--   The first most important thing
--   The second most important thing
--   The third most important thing
-
-You can do numbers like this:
-
-1.  The first most important thing
-2.  The second most important thing
-3.  The third most important thing
-
-See <http://rmarkdown.rstudio.com/> for all the amazing things you can do.
-
-Here's my first code chunk.
-
-```{r}
-x=3+4
-```
-
-Refer to output in your narrative like this: x=`r x` .
-
-Load any required packages in a code chunk (you may need to install some packages):
+#Load required packages:
 
 ```{r, message=F, warning=F}
-library(tidyverse)
-library(leaflet)
-library(kableExtra)
-library(htmlwidgets)
-library(widgetframe)
-knitr::opts_chunk$set(widgetframe_widgets_dir = 'widgets' ) 
-knitr::opts_chunk$set(cache=TRUE)  # cache the results for quick compiling
+# Load necessary libraries
+library(tidyverse)   # For data manipulation
+library(tidycensus)  # For working with US Census data
+library(leaflet)     # For interactive maps
+library(dplyr)       # For data manipulation (redundant with tidyverse)
+library(terra)       # For raster data manipulation
+library(sf)          # For spatial data manipulation
+library(ggplot2)     # For data visualization (ggplot2 plots)
+library(rasterVis)   # For raster visualization
+library(raster)      # For raster data manipulation
+
 ```
 
-## Download and clean all required data
+## Download, clean, and process data (Landsat 8 collective 2 level 1)
 
 ```{r}
-n=20
-data=data.frame(x=runif(n,-180,180),
-                y=runif(n,-60,60),
-                size = runif(n, 5, 20),
-                category = factor(
-                  sample(letters[1:5], n, replace = TRUE)
-                  ),
-                value = rnorm(n))
+# Key Steps
+
+# Load Erie County shapefile 
+erie_shapefile <- "data/erie.shp"  # Path to Erie County shapefile
+erie_county <- st_read(erie_shapefile)  # Read the shapefile as an sf object
+
+# Load Landsat 8 raster files 
+tif_files <- list.files("data", pattern = "\\.TIF$", full.names = TRUE)  # List all TIF files in the 'data' folder
+
+# Load the rasters using terra::rast
+rasters <- lapply(tif_files, rast)  # Load all TIF files as raster objects using terra::rast
+
+# Check the extents, resolutions, and CRS of each raster
+extents <- lapply(rasters, ext)  # Get the spatial extent of each raster
+resolutions <- lapply(rasters, res)  # Get the resolution of each raster
+crs_list <- lapply(rasters, crs)  # Get the coordinate reference system (CRS) of each raster
+
+#Find the common extent by intersecting the extents of all rasters
+common_extent <- Reduce(intersect, extents)  # Compute the intersection of all raster extents to find the common extent
+
+# Print the common extent for verification
+print(common_extent)
+
+# Find the common resolution
+common_res <- res(rasters[[1]])  # Use the resolution of the first raster as the common resolution
+
+# Ensure the same CRS for all rasters
+reference_crs <- crs(rasters[[1]])  # Set the CRS of the first raster as the reference CRS
+
+# Reproject rasters as their CRS does not match the reference CRS
+rasters <- lapply(rasters, function(r) {
+  if (!identical(crs(r), reference_crs)) {
+    project(r, reference_crs)  # Reproject raster to the reference CRS
+  } else {
+    r  # If the CRS is already the same, return the raster without change
+  }
+})
+
+#Crop and resample the rasters to the common extent and resolution
+rasters_aligned <- lapply(rasters, function(r) {
+  r_resampled <- resample(crop(r, common_extent),  # Crop raster to the common extent and then resample
+                          rast(extent = common_extent, res = common_res, crs = reference_crs))  # Define common resolution and CRS
+  return(r_resampled)
+})
+
+#Create a raster stack from the aligned rasters
+raster_stack <- rast(rasters_aligned)  # Combine all aligned rasters into a raster stack
+
+#Ensure the boundary is in the same CRS as the raster stack
+if (crs(raster_stack) != st_crs(erie_county)) {
+  erie_county <- st_transform(erie_county, crs(raster_stack))  # Reproject the Erie County shapefile to match the raster CRS
+}
+
+# Convert the Erie County boundary shapefile to a 'SpatVector' for raster operations
+erie_boundary_vect <- vect(erie_county)  # Convert sf object to SpatVector for raster operations
+
+#Crop the raster stack using the Erie County boundary
+raster_cropped <- crop(raster_stack, erie_boundary_vect)  # Crop the raster stack to the Erie County boundary
 ```
 
-```{r, results='asis'}
-data %>% 
-  slice(1:10) %>% #show only 1:n rows
-  kable(digits=2,align="c")%>% #make table and round to two digits
-  kable_styling(bootstrap_options = 
-                  c("striped", "hover", "condensed", "responsive")) #apply other formatting
+#Display plots  (Consider adding error handling to manage potential issues with data loading or processing)
+
+```{r}
+#Plot the cropped raster (first 12 bands)
+plot(raster_cropped[[1:12]], main = "First 12 Bands of the Cropped Raster")  # Plot the first 12 bands of the cropped raster stack
+
+#Compute the mean temperature across the first 12 bands of the raster stack
+temperature_stack <- raster_cropped[[1:12]]  # Select the first 12 bands for temperature analysis
+mean_temperature <- app(temperature_stack, fun = mean, na.rm = TRUE)  # Compute the mean value across the 12 bands, ignoring NAs
+
+# Plot the mean temperature
+plot(mean_temperature, main = "Mean Temperature (First 12 Bands)")  # Plot the mean temperature image
+
+#Ensure the CRS of the mean temperature raster matches the Erie County shapefile
+if (crs(mean_temperature) != st_crs(erie_county)) {
+  erie_county <- st_transform(erie_county, crs(mean_temperature))  # Reproject Erie County to match the CRS of the mean temperature raster
+}
+
 ```
 
-Add any additional processing steps here.
+#Display temperature intensity
+
+```{r}
+# Plot temperature intensity using color intensity from raster_cropped
+
+# Plot the raster stack with linear stretch
+plotRGB(raster_stack, stretch = "lin")  
+# This will plot the RGB composite of the raster stack using a linear stretch. 
+# Linear stretch adjusts the contrast of the image by linearly scaling the pixel values.
+
+# Plot the cropped raster with linear stretch
+plotRGB(raster_cropped, stretch = "lin")  
+# This will plot the RGB composite of the cropped raster using a linear stretch.
+# The cropped raster is focused on the region of interest (Erie County), and the stretch adjusts its contrast.
+
+# Plot the raster stack with histogram equalization stretch
+plotRGB(raster_stack, stretch = "hist")  
+# This will plot the RGB composite of the raster stack using histogram equalization stretch.
+# Histogram equalization adjusts the contrast by redistributing pixel values to cover the full range of the image's histogram.
+
+# Plot the cropped raster with histogram equalization stretch
+plotRGB(raster_cropped, stretch = "hist")  
+# This will plot the RGB composite of the cropped raster using histogram equalization.
+# Histogram equalization often improves contrast, especially in cases where the data has a skewed distribution.
+plotRGB(raster_cropped, stretch="hist") # Histogram equalization stretch
+```
+
+#Display mean plot
+
+```{r}
+# Define a color palette for the temperature plot
+temperature_palette <- terrain.colors(100)  
+# This creates a color palette using `terrain.colors()`, which is a built-in R function that generates a palette
+# suitable for representing temperature, ranging from cool to warm colors. The argument `100` specifies 
+# the number of colors in the palette.
+
+# Plot the mean temperature with the Erie County boundary overlay
+plot(mean_temperature, col = temperature_palette, 
+     main = "Mean Surface Temperature in Erie County, NY")  
+# This line will plot the mean temperature raster using the defined color palette.
+# The `col = temperature_palette` argument applies the temperature color palette to the plot.
+# The `main` argument sets the title of the plot to "Mean Surface Temperature in Erie County, NY".
+
+```
+
+```{r}
+# Perform hotspot analysis based on the 90th percentile of temperature values
+
+# Calculate the 90th percentile of the temperature values
+temperature_values <- values(mean_temperature)  # Extract the temperature values from the raster
+percentile_90 <- quantile(temperature_values, 0.90, na.rm = TRUE)  
+# `quantile()` computes the specified percentile (90th percentile in this case) of the temperature values.
+# `na.rm = TRUE` ensures that missing values (NA) are ignored during the computation.
+
+# Create a binary hotspot layer
+# The hotspot layer will contain 1 for pixels with temperature values greater than or equal to the 90th percentile
+# and 0 for pixels with temperature values below the 90th percentile.
+hotspot_layer <- mean_temperature >= percentile_90
+
+# Plot the hotspot layer
+plot(hotspot_layer, main = "Surface Temperature Hotspots in Erie County")  
+# The `plot()` function will visualize the binary hotspot layer.
+# Hotspots (pixels above the 90th percentile) will be displayed in one color (typically 1 = TRUE, usually white or black),
+# while other areas will be displayed in another color (0 = FALSE, typically transparent or grey).
+
+```
+
+#Using specific bands to calculate LST, NDVI, NDBI, and UHI
+
+```{r}
+# Crop the raster stack using the Erie County boundary
+raster_cropped <- crop(raster_stack, erie_boundary_vect)  
+# This step crops the raster stack to the extent of the Erie County boundary using the `crop()` function.
+# `erie_boundary_vect` is the vector representing the boundary of Erie County.
+
+# Extract required bands for indices
+red <- raster_cropped[[4]]     # Band 4: Red
+nir <- raster_cropped[[5]]     # Band 5: Near-Infrared (NIR)
+swir1 <- raster_cropped[[6]]   # Band 6: Shortwave Infrared 1 (SWIR1)
+tir <- raster_cropped[[10]]    # Band 10: Thermal Infrared (TIR)
+
+# Step 1: Calculate NDVI (Normalized Difference Vegetation Index)
+ndvi <- (nir - red) / (nir + red)  
+# NDVI is a commonly used index to assess vegetation health and density. It uses the difference between
+# the near-infrared (NIR) and red bands, normalized by the sum of these bands. NDVI values range from -1 to 1,
+# with higher values indicating healthier vegetation.
+
+#Calculate NDBI (Normalized Difference Built-up Index)
+ndbi <- (swir1 - nir) / (swir1 + nir)  
+# NDBI is an index used to assess the presence of built-up areas. It uses the shortwave infrared (SWIR1) and
+# near-infrared (NIR) bands. Higher values typically indicate urban or built-up areas.
+
+#Calculate Land Surface Temperature (LST)
+radiance <- tir * 0.0003342 + 0.1  
+# Convert the thermal infrared (TIR) band to radiance using the formula provided in the metadata of the Landsat data.
+# The constants (0.0003342 and 0.1) are specific to Landsat 8 and should be referenced from the metadata.
+
+kelvin_temp <- 1321.08 / log((774.89 / radiance) + 1)  
+# Convert the radiance to temperature in Kelvin using the formula for Landsat 8 TIRS band. 
+# The constants (1321.08 and 774.89) are specific to Landsat 8 and should be checked against the metadata.
+
+lst <- kelvin_temp - 273.15  
+# Convert the temperature from Kelvin to Celsius by subtracting 273.15. LST is commonly represented in Celsius.
+
+#Calculate Urban Heat Risk Index (UHRI)
+uhri <- (lst + ndbi) - ndvi  
+# UHRI is a composite index that combines the Land Surface Temperature (LST), the Normalized Difference Built-up Index (NDBI), 
+# and the Normalized Difference Vegetation Index (NDVI). It is used to assess urban heat risk, where higher values indicate 
+# areas with higher temperatures and less vegetation (urban heat islands).
+
+```
+
+#Display plots of LST, NDVI, NDBI, and UHI
+
+```{r}
+# Set up the 2x2 plot layout
+par(mfrow = c(2, 2))  
+# The `par(mfrow = c(2, 2))` function sets up a 2x2 grid of plots, so four plots will be displayed 
+# in a 2-row by 2-column layout in the output.
+
+# Define bright color palettes for each index
+ndvi_palette <- colorRampPalette(c("red", "yellow", "green"))(100)  
+# This creates a palette from red to green (with yellow in the middle) for NDVI. The `100` specifies
+# that the palette will consist of 100 discrete colors. Red represents low vegetation, green represents 
+# high vegetation.
+
+ndbi_palette <- colorRampPalette(c("white", "blue", "black"))(100)  
+# This creates a palette from white to black, with blue in the middle, for NDBI. Higher values of NDBI
+# are typically associated with built-up areas, which are represented in blue/black, while lower values
+# are associated with natural areas, represented by white.
+
+lst_palette <- colorRampPalette(c("white", "blue", "red"))(100)  
+# This creates a palette from white to red with blue in the middle, for LST. White represents cooler 
+# temperatures, blue represents moderate temperatures, and red represents higher temperatures.
+
+uhri_palette <- colorRampPalette(c("white", "orange", "purple"))(100)  
+# This creates a palette from white to purple, with orange in the middle, for UHRI. The colors represent
+# varying levels of urban heat risk, where white might indicate lower heat risk and purple represents higher 
+# risk areas (often associated with high temperatures, low vegetation, and urbanization).
+
+# Plot NDVI with bright colors
+plot(ndvi, main = "NDVI", col = ndvi_palette, legend = TRUE)  
+# This line plots the NDVI index with the defined color palette, and the `legend = TRUE` argument adds a
+# legend to the plot for reference. NDVI values range from -1 (non-vegetated) to 1 (dense vegetation).
+
+# Plot NDBI with bright colors
+plot(ndbi, main = "NDBI", col = ndbi_palette, legend = TRUE)  
+# This line plots the NDBI index using the `ndbi_palette`. NDBI values typically range from -1 (natural areas) 
+# to 1 (built-up areas).
+
+# Plot LST with bright colors
+plot(lst, main = "LST (°C)", col = lst_palette, legend = TRUE)  
+# This line plots the LST (Land Surface Temperature) index with the `lst_palette`. The LST values represent
+# the land surface temperature in degrees Celsius, with cooler areas shown in white, moderate areas in blue,
+# and hotter areas in red.
+
+# Plot UHRI with bright colors
+plot(uhri, main = "UHRI", col = uhri_palette, legend = TRUE)  
+# This line plots the Urban Heat Risk Index (UHRI) with the `uhri_palette`. UHRI combines temperature, 
+# built-up areas, and vegetation, with higher values indicating higher heat risk (represented in purple).
+
+```
+
+#Alternative colors
+
+```{r}
+# Set up color palettes for each index
+ndvi_palette <- colorRampPalette(c("#048C02", "#77DD77", "#B5E7A0", "#D6E9C6"))  
+# Palette for NDVI, from dark green (#048C02) to light green (#D6E9C6) to visualize vegetation density.
+
+ndbi_palette <- colorRampPalette(c("#F5F5F5", "#A9A9A9", "#696969", "#000000"))  
+# Palette for NDBI, from light gray (#F5F5F5) to dark gray/black (#000000) to represent urban areas.
+
+lst_palette <- colorRampPalette(c("#FFCCCB", "#FF7F50", "#FF4500", "#B22222"))  
+# Palette for LST, from light red (#FFCCCB) to dark red (#B22222) to represent temperatures, with hotter temperatures in darker red.
+
+uhri_palette <- colorRampPalette(c("#4575B4", "#91BFDB", "#FEE090", "#FC8D59", "#D73027"))  
+# Palette for UHRI, from blue (#4575B4) to red (#D73027), representing urban heat risk from low to high.
+
+# Plot results in a 2x2 grid
+par(mfrow = c(2, 2))  # Arrange plots in 2x2 grid layout
+
+# Plot NDVI
+plot(ndvi, col = ndvi_palette(100), main = "NDVI", axes = FALSE)  
+# NDVI plot using the NDVI color palette, `100` specifies the number of discrete colors.
+box()  # Adds a box around the plot for a cleaner presentation.
+
+# Plot NDBI
+plot(ndbi, col = ndbi_palette(100), main = "NDBI", axes = FALSE)  
+# NDBI plot with the NDBI color palette.
+box()  # Adds a box around the plot.
+
+# Plot LST (Land Surface Temperature)
+plot(lst, col = lst_palette(100), main = "LST (°C)", axes = FALSE)  
+# LST plot using the LST color palette, representing temperature values.
+box()  # Adds a box around the plot.
+
+# Plot UHRI (Urban Heat Risk Index)
+plot(uhri, col = uhri_palette(100), main = "UHRI", axes = FALSE)  
+# UHRI plot using the UHRI color palette, representing heat risk levels.
+box()  # Adds a box around the plot.
+
+
+```
+
+```{r}
+# Load the corrplot package for creating a correlation matrix plot
+library(corrplot)
+
+# Flatten the raster values into numeric vectors for each index
+ndvi_flat <- as.numeric(values(ndvi))  # Convert NDVI raster values into a numeric vector
+ndbi_flat <- as.numeric(values(ndbi))  # Convert NDBI raster values into a numeric vector
+lst_flat <- as.numeric(values(lst))    # Convert LST raster values into a numeric vector
+
+# Combine the individual flattened vectors into a data frame for analysis
+# This creates a data frame with one column for each index (NDVI, NDBI, LST)
+data <- data.frame(NDVI = ndvi_flat, NDBI = ndbi_flat, LST = lst_flat)
+
+# Calculate the correlation matrix for the three indices (NDVI, NDBI, and LST)
+# Use "complete.obs" to exclude any rows with missing (NA) values in the calculation
+correlation_matrix <- cor(data, use = "complete.obs")
+
+# Print the calculated correlation matrix to the console for review
+print(correlation_matrix)
+
+# Create and display a correlation plot of the matrix using the corrplot package
+# The corrplot() function visualizes the correlation matrix with color-coded cells
+corr_plot <- corrplot(correlation_matrix, 
+                      method = "color",  # Use color to represent correlation values
+                      col = colorRampPalette(c("blue", "white", "red"))(200),  # Define a color scale: blue for negative, red for positive correlations
+                      tl.col = "black",   # Set the color of the text labels (axis labels) to black for readability
+                      tl.srt = 45,         # Rotate axis labels by 45 degrees to avoid overlap and improve readability
+                      addCoef.col = "black",  # Add correlation coefficient numbers to each cell in black
+                      number.cex = 0.7,    # Adjust the size of the numbers showing the correlation coefficients
+                      cl.cex = 0.7,        # Adjust the size of the color legend text
+                      main = "Correlation Matrix of NDVI, NDBI, and LST")  # Set the title for the plot
+
+# Display the correlation plot
+corr_plot
+
+```
+
+##Prepare census data for socio-demographic characteristics
+
+```{r}
+# Set your Census API key
+census_api_key("677c6e6ec5f3c8621d7b139013d29cb61cf4dcdd")
+
+# Define the variables for race, age, and income
+race_vars <- c(
+  "Total Population" = "P1_001N",
+  "White alone" = "P1_003N",
+  "Black or African American alone" = "P1_004N",
+  "American Indian and Alaska Native alone" = "P1_005N",
+  "Asian alone" = "P1_006N",
+  "Native Hawaiian and Other Pacific Islander alone" = "P1_007N",
+  "Some Other Race alone" = "P1_008N",
+  "Two or More Races" = "P1_009N"
+)
+
+age_vars <- c(
+  "Total Population" = "P1_001N",
+  "Under 5 years" = "P1_003N",
+  "5 to 9 years" = "P1_004N",
+  "10 to 14 years" = "P1_005N",
+  "15 to 19 years" = "P1_006N",
+  "20 to 24 years" = "P1_007N",
+  "25 to 34 years" = "P1_008N",
+  "35 to 44 years" = "P1_009N",
+  "45 to 54 years" = "P1_010N",
+  "55 to 64 years" = "P1_011N",
+  "65 to 74 years" = "P1_012N",
+  "75 to 84 years" = "P1_013N",
+  "85 years and over" = "P1_014N"
+)
+
+income_vars <- c(
+  "Total Households" = "B19001_001",
+  "Less than $10,000" = "B19001_002",
+  "$10,000 to $14,999" = "B19001_003",
+  "$15,000 to $19,999" = "B19001_004",
+  "$20,000 to $24,999" = "B19001_005",
+  "$25,000 to $29,999" = "B19001_006",
+  "$30,000 to $34,999" = "B19001_007",
+  "$35,000 to $39,999" = "B19001_008",
+  "$40,000 to $44,999" = "B19001_009",
+  "$45,000 to $49,999" = "B19001_010",
+  "$50,000 to $59,999" = "B19001_011",
+  "$60,000 to $74,999" = "B19001_012",
+  "$75,000 to $99,999" = "B19001_013",
+  "$100,000 to $124,999" = "B19001_014",
+  "$125,000 to $149,999" = "B19001_015",
+  "$150,000 to $199,999" = "B19001_016",
+  "$200,000 or more" = "B19001_017"
+)
+
+# Download the data
+race_data <- get_decennial(geography = "block group", variables = race_vars, year = 2020, state = "NY", county = "Erie", geometry = TRUE)
+age_data <- get_decennial(geography = "block group", variables = age_vars, year = 2020, state = "NY", county = "Erie", geometry = TRUE)
+income_data <- get_acs(geography = "block group", variables = income_vars, year = 2020, state = "NY", county = "Erie", geometry = TRUE)
+```
+
+#Join census data and shapefiles
+
+```{r}
+
+# Check the CRS of the Erie County shapefile and age data
+st_crs(erie_county)  # CRS of the Erie County shapefile
+st_crs(age_data)     # CRS of the age data
+
+# If CRS do not match, transform 'age_data' to match the CRS of the Erie County shapefile
+if (st_crs(erie_county) != st_crs(age_data)) {
+  age_data <- st_transform(age_data, st_crs(erie_county))
+}
+
+# Perform the spatial join
+age_merged <- st_join(erie_county, age_data, join = st_intersects)
+```
+
+```{r}
+# Define a color palette for the age data (assuming 'age_merged' has a numeric age variable)
+age_palette <- colorRampPalette(c("lightblue", "blue", "darkblue"))(100)
+
+# Define color palettes
+ndvi_palette <- colorRampPalette(c("red", "yellow", "green"))(100)
+ndbi_palette <- colorRampPalette(c("white", "blue", "black"))(100)
+lst_palette <- colorRampPalette(c("white", "blue", "red"))(100)
+uhri_palette <- colorRampPalette(c("white", "orange", "purple"))(100)
+
+# Ensure the CRS of `age_merged` and raster layers match (if not, transform `age_merged`)
+# Check CRS of age_merged
+st_crs(age_merged)  # This should match the CRS of your rasters
+
+# If CRS is different, transform age_merged to match the raster CRS
+age_merged <- st_transform(age_merged, crs = crs(ndvi))  # Replace `ndvi` with your raster object if needed
+
+# Set up a 2x2 plot layout
+par(mfrow = c(2, 2))
+
+# Plot NDVI with bright colors
+plot(ndvi, main = "NDVI", col = ndvi_palette, legend = TRUE)
+plot(age_merged$geometry, add = TRUE, col = age_palette, border = "white")  # Overlay age_merged polygons
+
+# Plot NDBI with bright colors
+plot(ndbi, main = "NDBI", col = ndbi_palette, legend = TRUE)
+plot(age_merged$geometry, add = TRUE, col = age_palette, border = "white")  # Overlay age_merged polygons
+
+# Plot LST with bright colors
+plot(lst, main = "LST (°C)", col = lst_palette, legend = TRUE)
+plot(age_merged$geometry, add = TRUE, col = age_palette, border = "white")  # Overlay age_merged polygons
+
+# Plot UHRI with bright colors
+# Assuming 'uhri' is a RasterLayer object (from the raster package)
+library(raster)
+
+# Define the color palette for UHRI (adjust the palette if needed)
+uhri_palette <- colorRampPalette(c("white", "orange", "purple"))(100)
+
+
+```
 
 # Results
 
-\[\~200 words\]
+The results showed that UHI was unequally distributed across Erie County.
 
-Tables and figures (maps and other graphics) are carefully planned to convey the results of your analysis. Intense exploration and evidence of many trials and failures. The author looked at the data in many different ways before coming to the final presentation of the data.
+Also, high heat risk were concentrated in the urban core.For the second question—How is the spatial pattern of urban heat risk linked to the socio-economic characteristics of residents?
 
-Show tables, plots, etc. and describe them.
+```{r}
+# Assuming 'ndvi_cropped_resampled' exists and is correctly created
+# Convert the raster to a format that can be used with leaflet
+ndvi_cropped_resampled_pal <- colorNumeric(palette = "YlGnBu", domain = values(ndvi_cropped_resampled))
+
+# Create the interactive leaflet map
+leaflet() %>%
+  addTiles() %>%  # Add OpenStreetMap base layer
+  addRasterImage(ndvi_cropped_resampled, 
+                 colors = ndvi_cropped_resampled_pal, 
+                 opacity = 0.7, 
+                 group = "NDVI") %>%  # Add the downsampled NDVI layer
+  addLegend(pal = ndvi_cropped_resampled_pal, 
+            values = values(ndvi_cropped_resampled), 
+            title = "NDVI", 
+            opacity = 1) %>%  # Add a color legend
+  addLayersControl(
+    overlayGroups = c("NDVI"), 
+    options = layersControlOptions(collapsed = FALSE)  # Add layer control
+  ) %>%
+  setView(lng = -80.12, lat = 42.12, zoom = 8)  # Set initial map view (centered around Erie County)
+
+```
 
 ```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
-m <- leaflet(data) %>% 
-  addTiles() %>% 
-  addCircleMarkers(~x, ~y, radius = ~size,color = ~as.factor(category)) %>% 
-  addPopups(~x[2], ~y[2], "Random popup")
-m  # a map with the default OSM tile layer
+# Load necessary libraries
+library(leaflet)
+library(raster)
+
+# Assuming 'ndbi_resampled' exists and is correctly created by downsampling the NDBI raster
+# Create a color palette for NDBI using a numeric color palette
+ndbi_resampled_pal <- colorNumeric(palette = "YlGnBu", domain = values(ndbi_resampled))
+
+# Create the interactive leaflet map
+leaflet() %>%
+  addTiles() %>%  # Add OpenStreetMap base layer
+  addRasterImage(ndbi_resampled, 
+                 colors = ndbi_resampled_pal, 
+                 opacity = 0.7, 
+                 group = "NDBI") %>%  # Add the downsampled NDBI layer
+  addLegend(pal = ndbi_resampled_pal, 
+            values = values(ndbi_resampled), 
+            title = "NDBI", 
+            opacity = 1) %>%  # Add a color legend for NDBI
+  addLayersControl(
+    overlayGroups = c("NDBI"), 
+    options = layersControlOptions(collapsed = FALSE)  # Add layer control
+  ) %>%
+  setView(lng = -80.12, lat = 42.12, zoom = 8)  # Set initial map view (centered around Erie County)
+
+```
+
+```{r, fig.width=6, fig.height=3, fig.cap="Map of completely random data"}
+lst_map<- leaflet() %>%
+  addTiles() %>%
+  addRasterImage(lst_resampled, colors =
+                   lst_palette, opacity = 0.7, group = "LST (°C)") %>%
+  addLegend(position = "topright", 
+            pal = colorNumeric(palette = lst_palette, domain = values(lst_resampled)), 
+            values = values(lst_resampled), 
+            title = "LST (°C)")
+#Display map
+lst_map
 ```
 
 ```{r}
-data %>% 
-  ggplot(aes(x=x,y=y,col=category))+
-  geom_point()
-```
-
-### Dygraphs Example
-
-```{r}
-library(dygraphs)
-dygraph(nhtemp, main = "New Haven Temperatures") |> 
-  dyRangeSelector(dateWindow = c("1920-01-01", "1960-01-01")) 
+ uhri <- leaflet() %>%
+  addTiles() %>%addRasterImage(uhri_resampled, colors = uhri_palette, opacity = 0.7, group = "UHRI") %>%
+  addLegend(position = "topright", 
+            pal = colorNumeric(palette = uhri_palette, domain = values(uhri_resampled)), 
+            values = values(uhri_resampled), 
+            title = "UHRI") %>%
+  addLayersControl(
+    overlayGroups = c("NDVI", "NDBI", "LST (°C)", "UHRI"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+#display
+uhri
 ```
 
 # Conclusions
+I examined the spatial pattern of LST in Erie county. I used a Landsat 8 data to estimate land surface temperatures and urban form composition indices for built-up (NDBI) and vegetation (NDVI), obtaining the urban heat risk index. The results showed that the region was experiencing UHIs, which were unequally distributed across the study area.
 
-\[\~200 words\]
-
-Clear summary adequately describing the results and putting them in context. Discussion of further questions and ways to continue investigation.
+Future works
+To examine the spatial relationships between urban heat risk and vulnerable social groups (race, age, income).
 
 # References
 
